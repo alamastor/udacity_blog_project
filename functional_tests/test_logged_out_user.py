@@ -26,7 +26,7 @@ def test_user_can_view_posts(run_app, browser):
 
     # User can see header and and mulitple posts.
     header_text = browser.find_element_by_tag_name('h1').text
-    assert header_text == 'Bloggity'
+    assert header_text == 'Bloggity!'
 
     # User visits an individual blog post and can see content.
     assert 0
