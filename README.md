@@ -1,4 +1,5 @@
 # Bloggity: Udacity Blog Assignment
 
 ## Running tests
-- Functional tests: ```py.test functional_tests```
+unit/integration tests: ```./test_runner.py```
+functional tests: ```./test_runner.py --functional```
