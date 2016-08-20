@@ -5,5 +5,9 @@
 </head>
 <body>
   <h1>Bloggity!</h1>
+  {% for post in posts %}
+    <h2 class="post__title">{{ post.title }}</h2>
+    <p class="post__content">{{ post.content }}</p>
+  {% endfor %}
 </body>
 </html>
