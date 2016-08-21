@@ -1,66 +1,29 @@
 from collections import namedtuple
 
 import pytest
-import requests
-from lxml import html
 
-MAIN_PAGE_URL = 'localhost:8080'
-DATASTORE_URL = 'http://localhost:8000/datastore'
-
-@pytest.fixture
-def browser():
-    from selenium import webdriver
-    browser = webdriver.Firefox()
-    yield browser
-
-    browser.quit()
-
-
-@pytest.fixture
-def run_app():
-    import subprocess
-    app_proc = subprocess.Popen([
-        'dev_appserver.py',
-        '--clear_datastore=yes',
-        '--datastore_path=/tmp/temp_blog_datastore',
-        'blog'
-    ])
-    yield
-
-    app_proc.terminate()
-
-
-def write_to_db(entity_kind, fields):
-    page = requests.get('%s?edit=%s' % (DATASTORE_URL, entity_kind))
-    tree = html.fromstring(page.content)
-    xsrf_token = tree.xpath('//input[@name="xsrf_token"]')[0].value
-    post_data = {
-        'kind': entity_kind,
-        'xsrf_token': xsrf_token
-    }
-    for field in fields:
-        post_data['%s|%s' % (field.type, field.name)] = field.value
-    requests.post(DATASTORE_URL + '/edit', data=post_data)
+import base
+from base import run_app, browser
 
 
 @pytest.fixture
 def add_posts():
     Field = namedtuple('Field', ['type', 'name', 'value'])
-    write_to_db('Post', [
+    base.write_to_db('Post', (
         Field('string', 'title', 'Post 1'),
         Field('Text', 'content', 'asdfasfklanwemfl;aknf'),
         Field('datetime', 'datetime', '2016-8-10 06:12:23')
-    ])
-    write_to_db('Post', [
+    ))
+    base.write_to_db('Post', (
         Field('string', 'title', 'Post 2'),
         Field('Text', 'content', 'asdfasfklanwemfl;aknf'),
         Field('datetime', 'datetime', '2016-8-11 06:12:23')
-    ])
+    ))
 
 
 def test_user_can_view_posts(run_app, browser, add_posts):
     # User visits main page.
-    browser.get(MAIN_PAGE_URL)
+    browser.get(base.MAIN_PAGE_URL)
 
     # User can see header and and mulitple posts.
     header_text = browser.find_element_by_tag_name('h1').text
@@ -77,8 +40,3 @@ def test_user_can_view_posts(run_app, browser, add_posts):
     post_titles[0].find_element_by_tag_name('a').click()
     header_text = browser.find_element_by_tag_name('h1').text
     assert header_text == 'Post 2'
-
-    # User can write comment on blog post.
-    assert 0
-
-    # Comment is now visible on page.
