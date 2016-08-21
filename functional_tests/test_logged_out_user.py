@@ -40,8 +40,7 @@ def write_to_db(entity_kind, fields):
     }
     for field in fields:
         post_data['%s|%s' % (field.type, field.name)] = field.value
-    r = requests.post(DATASTORE_URL + '/edit', data=post_data)
-    print(r)
+    requests.post(DATASTORE_URL + '/edit', data=post_data)
 
 
 @pytest.fixture
@@ -75,8 +74,11 @@ def test_user_can_view_posts(run_app, browser, add_posts):
     assert len(post_content) == 2
 
     # User visits an individual blog post and can see content.
-    assert 0
+    post_titles[1].find_element_by_tag_name('a').click()
+    header_text = browser.find_element_by_tag_name('h1').text
+    assert header_text == 'Post 2'
 
-    # User write comment on blog post.
+    # User can write comment on blog post.
+    assert 0
 
     # Comment is now visible on page.

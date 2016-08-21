@@ -34,11 +34,11 @@ def test_main_page_shows_header(testapp):
 
 @pytest.fixture
 def posts(mocker):
-    Post = namedtuple('Post', ['title', 'content', 'datetime'])
+    Post = namedtuple('Post', ['title', 'content', 'datetime', 'url'])
     mocked_query = mocker.patch('blog.views.Post.query')
     mocked_query.return_value.fetch.return_value = [
-        Post('Post 1', 'dfjals;dfjawpoefinasdni', datetime(2016, 8, 10)),
-        Post('Post 2', 'dfjals;dfjawpoefinasdni', datetime(2016, 8, 11)),
+        Post('Post 1', 'dfjals;dfjawpoefinasdni', datetime(2016, 8, 10), '/posts/post-1'),
+        Post('Post 2', 'dfjals;dfjawpoefinasdni', datetime(2016, 8, 11), '/posts/post-2'),
     ]
 
 
@@ -51,6 +51,14 @@ def test_main_page_shows_blog_posts(testapp, posts):
 
 def test_main_page_post_are_order_newest_to_oldest(testapp, posts):
     body = testapp.get('/').normal_body
+    print(body)
     tree = html.fromstring(body)
-    titles = tree.xpath('//h2[@class="post__title"]/text()')
+    titles = tree.xpath('//h2[@class="post__title"]/a/text()')
     assert titles == ['Post 2', 'Post 1']
+
+
+def test_main_has_links_to_individual_posts(testapp, posts):
+    body = testapp.get('/').normal_body
+    tree = html.fromstring(body)
+    links = tree.xpath('//h2[@class="post__title"]/a/@href')
+    assert links == ['/posts/post-2', '/posts/post-1']
