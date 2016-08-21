@@ -74,7 +74,7 @@ def test_user_can_view_posts(run_app, browser, add_posts):
     assert len(post_content) == 2
 
     # User visits an individual blog post and can see content.
-    post_titles[1].find_element_by_tag_name('a').click()
+    post_titles[0].find_element_by_tag_name('a').click()
     header_text = browser.find_element_by_tag_name('h1').text
     assert header_text == 'Post 2'
 
