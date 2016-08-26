@@ -64,7 +64,7 @@ def fake_user():
     return user
 
 
-def test_login_returns_200(testapp):
+def test_login_page_returns_200(testapp):
     assert testapp.get('/login').status_int == 200
 
 

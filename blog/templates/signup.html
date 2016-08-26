@@ -1,8 +1,14 @@
+
 {% extends "base.html" %}
 {% block body %}
   <form method="post">
-    <input name="username">
+    <input name="username" value="{{ username }}">
     <input name="password" type="password">
+    <input name="verify" type="password">
+    <input name="email" value="{{ email }}">
+    {% for error in errors %}
+      <div class="error">{{ error }}</div>
+    {% endfor %}
     <input type="submit">
   </form>
   {% if error %}
