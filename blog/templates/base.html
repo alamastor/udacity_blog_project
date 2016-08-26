@@ -4,6 +4,11 @@
   <title>Bloggity!</title>
 </head>
 <body>
+  <nav>
+    {% if user %}
+      Welcome {{ user.username }}
+    {% endif %}
+  </nav>
   {% block body %}
   {% endblock %}
 </body>

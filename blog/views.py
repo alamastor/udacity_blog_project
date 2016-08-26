@@ -1,14 +1,14 @@
-from handlers import Handler
+from handlers import Handler, AuthHandler
 from models import Post, User
 import auth
 
 
-class HomePage(Handler):
+class HomePage(Handler, AuthHandler):
 
     def get(self):
         posts = Post.query().fetch(10)
         posts.sort(key=lambda p: p.datetime, reverse=True)
-        self.render('home_page.html', posts=posts)
+        self.render('home_page.html', user=self.user, posts=posts)
 
 
 class PostPage(Handler):
@@ -19,7 +19,7 @@ class PostPage(Handler):
             self.render('post.html', post=post)
 
 
-class LoginPage(Handler):
+class LoginPage(Handler, AuthHandler):
 
     def get(self):
         self.render('login.html')
@@ -37,6 +37,7 @@ class LoginPage(Handler):
                 valid_user = True
 
         if valid_user:
+            self.log_user_in(user.key.id())
             self.redirect('/')
         else:
             self.render('login.html', error=True)

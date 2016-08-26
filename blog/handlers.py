@@ -3,6 +3,9 @@ import os
 import webapp2
 import jinja2
 
+import auth
+from models import User
+
 
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(
@@ -22,3 +25,28 @@ class Handler(webapp2.RequestHandler):
 
     def render(self, template, **kwargs):
         self.write(self.render_str(template, **kwargs))
+
+
+class AuthHandler(webapp2.RequestHandler):
+
+    def initialize(self, *args, **kwargs):
+        super(AuthHandler, self).initialize(*args, **kwargs)
+        user_id = self.read_secure_cookie('sess')
+        self.user = user_id and User.get_by_id(int(user_id))
+
+    def set_secure_cookie(self, name, val):
+        self.response.set_cookie(
+            'sess',
+            '%s|%s' % (name, val),
+            path='/'
+        )
+
+    def read_secure_cookie(self, name):
+        cookie = self.request.cookies.get(name)
+        if cookie:
+            val, digest = cookie.split('|')
+            if auth.check_secure_val(val, digest):
+                return val
+
+    def log_user_in(self, user_id):
+        self.set_secure_cookie(user_id, auth.make_secure_val(user_id))

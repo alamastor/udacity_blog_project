@@ -2,13 +2,14 @@ from collections import namedtuple
 from datetime import datetime
 
 import pytest
-from lxml import html
 import webtest
 import webapp2
+from bs4 import BeautifulSoup
 2
 from blog.main import ROUTER
 from blog.views import HomePage
 from blog.models import Post, User
+from blog import auth
 
 
 @pytest.fixture
@@ -54,15 +55,18 @@ def mock_Post_get_by_id(mocker):
 
 
 @pytest.fixture
-def mock_valid_User(mocker):
+def mock_valid_User(mocker, mock):
     User = namedtuple('User', ['username', 'password'])
     mock_user = User('Billy_Bob', '!Password')
-    DbUser = namedtuple('DbUser', ['username', 'pw_hash', 'salt'])
+    DbUser = namedtuple('DbUser', ['username', 'pw_hash', 'salt', 'key'])
     mocked_get_by_username = mocker.patch('blog.views.User.get_by_username')
+    mock_key = mock
+    mock_key.id = mocker.Mock(return_value=1)
     mocked_get_by_username.return_value = DbUser(
         mock_user.username,
         'ea6b636e740f821220fe50263f127519a5185fe875df414bbe6b00de21a5b282',
-        '12345678'
+        '12345678',
+        mock_key
     )
     return mock_user
 
@@ -90,6 +94,22 @@ def mock_non_existant_User(mocker):
     return mock_user
 
 
+@pytest.fixture
+def mock_login(mocker):
+    return mocker.patch('blog.views.AuthHandler.log_user_in')
+
+
+@pytest.fixture
+def fake_user():
+    user = User(
+        username='Billy_Bob',
+        pw_hash='ea6b636e740f821220fe50263f127519a5185fe875df414bbe6b00de21a5b281',
+        salt='12345678'
+    )
+    user.put()
+    return user
+
+
 def test_home_page_shows_blog_posts(testapp, mock_Post_fetch):
     body = testapp.get('/').normal_body
     assert 'Post 1' in body
@@ -99,15 +119,15 @@ def test_home_page_shows_blog_posts(testapp, mock_Post_fetch):
 
 def test_home_page_post_are_order_newest_to_oldest(testapp, mock_Post_fetch):
     body = testapp.get('/').normal_body
-    tree = html.fromstring(body)
-    titles = tree.xpath('//h2[@class="post__title"]/a/text()')
+    soup = BeautifulSoup(body, 'html.parser')
+    titles = [x.text for x in soup.find_all('h2', {'class': 'post__title'})]
     assert titles == ['Post 2', 'Post 1']
 
 
 def test_home_has_links_to_individual_posts(testapp, mock_Post_fetch):
     body = testapp.get('/').normal_body
-    tree = html.fromstring(body)
-    links = tree.xpath('//h2[@class="post__title"]/a/@href')
+    soup = BeautifulSoup(body, 'html.parser')
+    links = [x.a['href'] for x in soup.find_all('h2', {'class': 'post__title'})]
     assert links == ['/post/2', '/post/1']
 
 
@@ -162,3 +182,26 @@ def test_login_shows_error_on_non_existant_user(testapp, mock_non_existant_User)
 def test_login_shows_error_on_invalid_user(testapp, mock_invalid_User):
     response = post_user_to_login(testapp, mock_invalid_User)
     assert 'Invalid' in response.normal_body
+
+
+def test_valid_User_response_contains_cookie(testapp, mock_valid_User):
+    assert 'Set-Cookie' in post_user_to_login(testapp, mock_valid_User).headers
+
+
+def test_login_cookie_has_name_sess(testapp, mock_valid_User):
+    cookie = post_user_to_login(testapp, mock_valid_User).headers['Set-Cookie']
+    assert cookie.split('=')[0] == 'sess'
+
+
+def test_login_with_valid_user_calls_login_meth(testapp, mock_valid_User, mock_login):
+    post_user_to_login(testapp, mock_valid_User)
+    mock_login.assert_called_once()
+
+
+def test_logged_in_user_has_username_displayed_in_nav(testapp, fake_user):
+    user_id = fake_user.key.id()
+    response = testapp.get('/', headers={
+        'Cookie': 'sess=%s|%s; Path=/' % (user_id, auth.make_secure_val(user_id))
+    })
+    soup = BeautifulSoup(response.body, 'html.parser')
+    assert fake_user.username in soup.nav.text

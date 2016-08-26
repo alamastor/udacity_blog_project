@@ -31,7 +31,6 @@ def test_user_login(run_app, browser, test_user):
     pw_input.send_keys('fake')
     submit.click()
 
-
     # Error message is displayed.
     error_text = browser.find_element_by_class_name('error').text
     assert error_text == 'Invalid login credentials.'
@@ -49,5 +48,5 @@ def test_user_login(run_app, browser, test_user):
     header_text = browser.find_element_by_tag_name('h1').text
     assert header_text == 'Bloggity!'
 
-    # User is show as logged in.
-    assert 0
+    # User is shown as logged in.
+    assert test_user.username in browser.find_element_by_tag_name('nav').text
