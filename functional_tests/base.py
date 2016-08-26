@@ -1,6 +1,6 @@
 import pytest
 import requests
-from lxml import html
+from bs4 import BeautifulSoup
 
 MAIN_PAGE_URL = 'localhost:8080'
 DATASTORE_URL = 'http://localhost:8000/datastore'
@@ -29,15 +29,13 @@ def run_app():
     yield
 
     app_proc.terminate()
-    print('start waiting')
     app_proc.wait()
-    print('stop waiting')
 
 
 def write_to_db(entity_kind, fields):
     page = requests.get('%s?edit=%s' % (DATASTORE_URL, entity_kind))
-    tree = html.fromstring(page.content)
-    xsrf_token = tree.xpath('//input[@name="xsrf_token"]')[0].value
+    soup = BeautifulSoup(page.content, 'html.parser')
+    xsrf_token = soup.find('input', {'name': 'xsrf_token'})['value']
     post_data = {
         'kind': entity_kind,
         'xsrf_token': xsrf_token
