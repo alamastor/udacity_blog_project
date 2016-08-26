@@ -1,57 +1,11 @@
 from collections import namedtuple
-from datetime import datetime
 
 import pytest
-import webtest
-import webapp2
 from bs4 import BeautifulSoup
-2
-from blog.main import ROUTER
-from blog.views import HomePage
+
 from blog.models import Post, User
 from blog import auth
-
-
-@pytest.fixture
-def testapp():
-    from google.appengine.ext import testbed
-    testbed = testbed.Testbed()
-    testbed.activate()
-    testbed.init_app_identity_stub()
-    testbed.init_datastore_v3_stub()
-    app = webapp2.WSGIApplication(ROUTER)
-    return webtest.TestApp(app)
-
-
-def test_home_page_returns_200(testapp):
-    assert testapp.get('/').status_int == 200
-
-
-def test_home_page_shows_header(testapp):
-    assert 'Bloggity' in testapp.get('/').normal_body
-
-
-@pytest.fixture
-def mock_Post_fetch(mocker):
-    Post = namedtuple('Post', ['title', 'content', 'datetime', 'key'])
-    mocked_query = mocker.patch('blog.views.Post.query')
-    keyId1 = mocker.Mock()
-    keyId1.id = mocker.Mock(return_value=1)
-    keyId2 = mocker.Mock()
-    keyId2.id = mocker.Mock(return_value=2)
-    mocked_query.return_value.fetch.return_value = [
-        Post('Post 1', 'dfjals;dfjawpoefinasdni', datetime(2016, 8, 10), keyId1),
-        Post('Post 2', 'dfjals;dfjawpoefinasdni', datetime(2016, 8, 11), keyId2),
-    ]
-
-
-@pytest.fixture
-def mock_Post_get_by_id(mocker):
-    Post = namedtuple('Post', ['title', 'content', 'datetime', 'key'])
-    mocked_get = mocker.patch('blog.views.Post.get_by_id')
-    keyId1 = mocker.Mock()
-    keyId1.id = mocker.Mock(return_value=1)
-    mocked_get.return_value = Post('Post 1', 'dfjals;dfjawpoefinasdni', datetime(2016, 8, 10), keyId1)
+from views_base import testapp
 
 
 @pytest.fixture
@@ -108,37 +62,6 @@ def fake_user():
     )
     user.put()
     return user
-
-
-def test_home_page_shows_blog_posts(testapp, mock_Post_fetch):
-    body = testapp.get('/').normal_body
-    assert 'Post 1' in body
-    assert 'Post 2' in body
-    assert body.count('post__content') == 2
-
-
-def test_home_page_post_are_order_newest_to_oldest(testapp, mock_Post_fetch):
-    body = testapp.get('/').normal_body
-    soup = BeautifulSoup(body, 'html.parser')
-    titles = [x.text for x in soup.find_all('h2', {'class': 'post__title'})]
-    assert titles == ['Post 2', 'Post 1']
-
-
-def test_home_has_links_to_individual_posts(testapp, mock_Post_fetch):
-    body = testapp.get('/').normal_body
-    soup = BeautifulSoup(body, 'html.parser')
-    links = [x.a['href'] for x in soup.find_all('h2', {'class': 'post__title'})]
-    assert links == ['/post/2', '/post/1']
-
-
-def test_get_post_returns_404_if_post_does_not_exist(testapp):
-    with pytest.raises(webtest.AppError) as e:
-        testapp.get('/posts/asdfadsfadsf')
-        assert '404' in e.value
-
-
-def test_get_post_returns_200_if_post_exists(testapp, mock_Post_get_by_id):
-    assert testapp.get('/post/1').status_int == 200
 
 
 def test_login_returns_200(testapp):
