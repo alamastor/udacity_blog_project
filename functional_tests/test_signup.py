@@ -1,32 +1,32 @@
 import base
 from base import run_app, browser
-from login_page import LoginPage
+from signup_page import SignUpPage
 
 
 def test_user_signup(run_app, browser):
-    login_page = LoginPage(browser)
+    signup_page = SignUpPage(browser)
 
     # User visits signup page.
-    login_page.go_to_login_page()
+    signup_page.go_to_signup_page()
 
     # User tries to sign up without a username and sees an error.
-    login_page.submit_form('', 'asdf', 'asdf', 'a@b.com')
-    assert login_page.get_error_message() == 'Invalid username'
+    signup_page.submit_form('', 'asdf', 'asdf', 'a@b.com')
+    assert signup_page.get_error_message() == 'Invalid username'
 
     # User tries to sign up without a password and sees an error.
-    login_page.submit_form('person', '', '')
-    assert login_page.get_error_message() == 'Invalid password'
+    signup_page.submit_form('person', '', '')
+    assert signup_page.get_error_message() == 'Invalid password'
 
     # User tries to sign up with missmatching password and sees an error.
-    login_page.submit_form('person', 'asdf', 'asdd')
-    assert login_page.get_error_message() == "Passwords didn't match"
+    signup_page.submit_form('person', 'asdf', 'asdd')
+    assert signup_page.get_error_message() == "Passwords didn't match"
 
     # User tries to sign up with invalid eamil and sees an error.
-    login_page.submit_form('person', 'asdfxx', 'asdfxx', 'asdfasdf')
-    assert login_page.get_error_message() == 'Invalid email address'
+    signup_page.submit_form('person', 'asdfxx', 'asdfxx', 'asdfasdf')
+    assert signup_page.get_error_message() == 'Invalid email address'
 
     # User logs in valid credentials
-    login_page.submit_form('person', 'asdf', 'asdf', 'a@b.com')
+    signup_page.submit_form('person', 'asdf', 'asdf', 'a@b.com')
 
     # User is redirected and sees username in nav.
     browser.implicitly_wait(5)
