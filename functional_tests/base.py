@@ -1,3 +1,5 @@
+from collections import namedtuple
+
 import pytest
 import requests
 from bs4 import BeautifulSoup
@@ -43,3 +45,16 @@ def write_to_db(entity_kind, fields):
     for field in fields:
         post_data['%s|%s' % (field.type, field.name)] = field.value
     requests.post(DATASTORE_URL + '/edit', data=post_data)
+
+
+def create_test_user():
+    User = namedtuple('User', ['username', 'password'])
+    test_user = User('Billy_Bob', '!Password')
+    Field = namedtuple('Field', ['type', 'name', 'value'])
+    write_to_db('User', (
+        Field('string', 'username', test_user.username),
+        Field('string', 'pw_hash', 'ea6b636e740f821220fe50263f127519a5185fe875df414bbe6b00de21a5b282'),
+        Field('string', 'salt', '12345678'),
+    ))
+
+    return test_user

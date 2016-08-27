@@ -1,47 +1,27 @@
-from collections import namedtuple
-
 import pytest
 
 import base
 from base import run_app, browser
+from pages import LoginPage
 
 
 @pytest.fixture
 def test_user():
-    User = namedtuple('User', ['username', 'password'])
-    test_user = User('Billy_Bob', '!Password')
-    Field = namedtuple('Field', ['type', 'name', 'value'])
-    base.write_to_db('User', (
-        Field('string', 'username', test_user.username),
-        Field('string', 'pw_hash', 'ea6b636e740f821220fe50263f127519a5185fe875df414bbe6b00de21a5b282'),
-        Field('string', 'salt', '12345678'),
-    ))
-    return test_user
+    return base.create_test_user()
 
 
 def test_user_login(run_app, browser, test_user):
     # User visits login page.
-    browser.get(base.MAIN_PAGE_URL + '/login')
+    login_page = LoginPage(browser)
+    login_page.visit_page()
 
     # User logs trys to log in with invalid credentials.
-    user_input = browser.find_element_by_name('username')
-    pw_input = browser.find_element_by_name('password')
-    submit = browser.find_element_by_xpath('//input[@type="submit"]')
-    user_input.send_keys('fake')
-    pw_input.send_keys('fake')
-    submit.click()
-
+    login_page.submit_form('fake', 'fake')
     # Error message is displayed.
-    error_text = browser.find_element_by_class_name('error').text
-    assert error_text == 'Invalid login credentials.'
+    assert login_page.get_error_message() == 'Invalid login credentials.'
 
     # User logs in.
-    user_input = browser.find_element_by_name('username')
-    pw_input = browser.find_element_by_name('password')
-    submit = browser.find_element_by_xpath('//input[@type="submit"]')
-    user_input.send_keys(test_user.username)
-    pw_input.send_keys(test_user.password)
-    submit.click()
+    login_page.submit_form(test_user.username, test_user.password)
 
     # User is redirected to home page
     browser.implicitly_wait(5)

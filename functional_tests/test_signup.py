@@ -1,13 +1,13 @@
 import base
 from base import run_app, browser
-from signup_page import SignUpPage
+from pages import SignUpPage
 
 
 def test_user_signup(run_app, browser):
     signup_page = SignUpPage(browser)
 
     # User visits signup page.
-    signup_page.go_to_signup_page()
+    signup_page.visit_page()
 
     # User tries to sign up without a username and sees an error.
     signup_page.submit_form('', 'asdf', 'asdf', 'a@b.com')
