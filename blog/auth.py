@@ -2,6 +2,9 @@ from hashlib import sha256
 import hmac
 from ConfigParser import SafeConfigParser
 import os
+import binascii
+
+from models import User
 
 config = SafeConfigParser()
 config.read(os.path.join(os.path.dirname(__file__), '..', 'auth.cfg'))
@@ -21,3 +24,19 @@ def check_secure_val(val, hexdigest):
         make_secure_val(val),
         str(hexdigest)
     )
+
+
+def create_user(username, password, email=None):
+    salt = make_salt()
+    user = User(
+        username=username,
+        pw_hash=make_pw_hash(username, password, salt),
+        salt=salt,
+        email=email
+    )
+    user.put()
+    return user.key.id()
+
+
+def make_salt():
+    return binascii.hexlify(os.urandom(4))

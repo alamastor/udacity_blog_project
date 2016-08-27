@@ -76,11 +76,27 @@ def test_invalid_post_keeps_username_and_email_in_form(testapp):
     assert form.find('input', {'name': 'email'})['value'] == 'asdfasd'
 
 
-def test_valid_post_redirects(testapp):
-    assert post_to_signup(
+def valid_post(testapp):
+    return post_to_signup(
         testapp,
         username='sadfas',
         password='axaxax',
         verify='axaxax',
         email='asdf@x.com'
-    ).status_int == 302
+    )
+
+
+def test_valid_post_redirects(testapp):
+    assert valid_post(testapp).status_int == 302
+
+
+def test_valid_post_calls_create_user(testapp, mocker):
+    mock_create_user = mocker.patch('blog.auth.create_user')
+    valid_post(testapp)
+    mock_create_user.assert_called_once()
+
+
+def test_valid_post_calls_login(testapp, mocker):
+    mock_login = mocker.patch('blog.views.AuthHandler.log_user_in')
+    valid_post(testapp)
+    mock_login.assert_called_once()

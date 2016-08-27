@@ -45,7 +45,7 @@ class LoginPage(Handler, AuthHandler):
             self.render('login.html', error=True)
 
 
-class SignUpPage(Handler):
+class SignUpPage(Handler, AuthHandler):
     USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
     PW_RE = re.compile(r"^.{3,20}$")
     EMAIL_RE = re.compile(r"^[\S]+@[\S]+.[\S]+$")
@@ -67,11 +67,13 @@ class SignUpPage(Handler):
         if password != verify:
             errors.append("Passwords didn't match")
         if not self.EMAIL_RE.match(email):
-            errors.append('Invalid email')
+            errors.append('Invalid email address')
 
         if errors:
             self.render(
                 'signup.html', username=username, email=email, errors=errors
             )
         else:
+            user_id = auth.create_user(username, password, email)
+            self.log_user_in(user_id)
             self.redirect('/')

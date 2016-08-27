@@ -19,10 +19,10 @@ def test_user_signup(run_app, browser):
 
     # User tries to sign up with missmatching password and sees an error.
     login_page.submit_form('person', 'asdf', 'asdd')
-    assert login_page.get_error_message() == "Passwords don't match"
+    assert login_page.get_error_message() == "Passwords didn't match"
 
     # User tries to sign up with invalid eamil and sees an error.
-    login_page.submit_form('person', 'asdf', 'asdf', 'asdfasdf')
+    login_page.submit_form('person', 'asdfxx', 'asdfxx', 'asdfasdf')
     assert login_page.get_error_message() == 'Invalid email address'
 
     # User logs in valid credentials
@@ -30,5 +30,6 @@ def test_user_signup(run_app, browser):
 
     # User is redirected and sees username in nav.
     browser.implicitly_wait(5)
+    header_text = browser.find_element_by_tag_name('h1').text
     assert header_text == 'Bloggity!'
-    assert 'person' in browser.find_element_by_class_tag('nav').text
+    assert 'person' in browser.find_element_by_tag_name('nav').text

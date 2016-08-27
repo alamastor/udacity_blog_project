@@ -11,6 +11,7 @@ class User(ndb.Model):
     username = ndb.StringProperty(required=True)
     pw_hash = ndb.StringProperty(required=True)
     salt = ndb.StringProperty(required=True)
+    email = ndb.StringProperty()
 
     @classmethod
     def get_by_username(cls, username):
