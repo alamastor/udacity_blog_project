@@ -18,9 +18,9 @@ def main(functional, sdk_path=SDK_PATH, files=[]):
         for file_ in files:
             pytest.main(['-x', file_])
     elif functional:
-        pytest.main(['-x', 'functional_tests'])
+        pytest.main(['functional_tests'])
     else:
-        pytest.main(['-x', 'tests'])
+        pytest.main(['tests'])
 
 
 if __name__ == '__main__':
