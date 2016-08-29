@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block body %}
-  <h1>{{ post.title }}</h1>
-  <p class="post__content">{{ post.content }}</p>
+  <h1 class="post__title">{{ post.title }}</h1>
+  <h3 class="post__date">{{ post.date_str }}</h3>
+  <p class="post__content">{{ post.formatted_content }}</p>
 {% endblock %}

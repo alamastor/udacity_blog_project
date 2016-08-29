@@ -3,6 +3,7 @@
   <h1>Bloggity!</h1>
   {% for post in posts %}
     <h2 class="post__title"><a href="/post/{{ post.key.id() }}">{{ post.title }}</a></h2>
+    <h3 class="post__date">{{ post.date_str }}</h3>
     <p class="post__content">{{ post.content }}</p>
   {% endfor %}
 {% endblock %}

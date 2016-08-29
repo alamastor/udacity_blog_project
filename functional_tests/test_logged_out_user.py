@@ -39,4 +39,6 @@ def test_user_can_view_posts(run_app, browser, add_posts):
     # User visits an individual blog post and can see content.
     post_titles[0].find_element_by_tag_name('a').click()
     header_text = browser.find_element_by_tag_name('h1').text
+    post_time = browser.find_element_by_class_name('post__date').text
     assert header_text == 'Post 2'
+    assert post_time == '11-Aug-2016'

@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import re
 
 from handlers import Handler, AuthHandler
@@ -47,8 +49,8 @@ class LoginPage(Handler, AuthHandler):
 
 class SignUpPage(Handler, AuthHandler):
     USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
-    PW_RE = re.compile(r"^.{3,20}$")
-    EMAIL_RE = re.compile(r"^[\S]+@[\S]+.[\S]+$")
+    PW_RE = re.compile(r'^.{3,20}$')
+    EMAIL_RE = re.compile(r'^[\S]+@[\S]+.[\S]+$')
 
     def get(self):
         self.render('signup.html')
@@ -77,3 +79,39 @@ class SignUpPage(Handler, AuthHandler):
             user_id = auth.create_user(username, password, email)
             self.log_user_in(user_id)
             self.redirect('/')
+
+
+class CreatePage(Handler, AuthHandler):
+    TITLE_RE = re.compile(r'^.{4,80}')
+    CONTENT_RE = re.compile(r'^[\S\s]{4,}')
+
+    def get(self):
+        if self.user:
+            self.render('create.html')
+        else:
+            self.redirect('/login')
+
+    def post(self):
+        if self.user:
+            title = self.request.get('title')
+            content = self.request.get('content')
+
+            errors = []
+            if not self.TITLE_RE.match(title):
+                errors.append('Invalid title')
+            if not self.CONTENT_RE.match(content):
+                errors.append('Invalid content')
+
+            if not errors:
+                post = Post(
+                    title=title,
+                    content=content,
+                    datetime=datetime.now()
+                )
+                post.put()
+
+                self.redirect('/post/' + str(post.key.id()))
+            else:
+                self.render('create.html', title=title, content=content, errors=errors)
+        else:
+            self.abort(401)

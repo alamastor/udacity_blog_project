@@ -6,6 +6,14 @@ class Post(ndb.Model):
     content = ndb.TextProperty(required=True)
     datetime = ndb.DateTimeProperty(required=True)
 
+    @property
+    def date_str(self):
+        return self.datetime.strftime('%d-%b-%Y')
+
+    @property
+    def formatted_content(self):
+        return self.content.replace('\n', '<br>')
+
 
 class User(ndb.Model):
     username = ndb.StringProperty(required=True)

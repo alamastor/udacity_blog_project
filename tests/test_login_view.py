@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 
 from blog.models import Post, User
 from blog import auth
-from views_base import testapp
+from views_base import testapp, fake_user
 
 
 @pytest.fixture
@@ -51,17 +51,6 @@ def mock_non_existant_User(mocker):
 @pytest.fixture
 def mock_login(mocker):
     return mocker.patch('blog.views.AuthHandler.log_user_in')
-
-
-@pytest.fixture
-def fake_user():
-    user = User(
-        username='Billy_Bob',
-        pw_hash='ea6b636e740f821220fe50263f127519a5185fe875df414bbe6b00de21a5b281',
-        salt='12345678'
-    )
-    user.put()
-    return user
 
 
 def test_login_page_returns_200(testapp):
