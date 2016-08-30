@@ -46,6 +46,12 @@ def write_to_db(entity_kind, fields):
         post_data['%s|%s' % (field.type, field.name)] = field.value
     requests.post(DATASTORE_URL + '/edit', data=post_data)
 
+    # Get ID of entry that was just added.
+    table_page = requests.get('%s?kind=%s' % (DATASTORE_URL, entity_kind))
+    soup = BeautifulSoup(table_page.content, 'html.parser')
+    entity_id = int(soup.find_all('tr')[-1].find_all('td')[3].text)
+    return entity_id
+
 
 def create_test_user():
     User = namedtuple('User', ['username', 'password'])

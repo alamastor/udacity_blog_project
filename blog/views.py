@@ -21,6 +21,8 @@ class PostPage(Handler):
         post = Post.get_by_id(int(post_id))
         if post:
             self.render('post.html', post=post)
+        else:
+            self.abort(404)
 
 
 class LoginPage(Handler, AuthHandler):

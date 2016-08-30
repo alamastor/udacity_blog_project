@@ -78,3 +78,15 @@ class CreatePage(Page):
 
     def get_error_message(self):
         return self.browser.find_element_by_class_name('error').text
+
+
+class PostPage(Page):
+
+    def __init__(self, browser, post_no):
+        super(PostPage, self).__init__(
+            browser, '%s/post/%i' % (base.MAIN_PAGE_URL, post_no)
+        )
+
+    @property
+    def title(self):
+        return self.browser.find_element_by_class_name('post__title').text

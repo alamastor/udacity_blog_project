@@ -12,7 +12,7 @@ def test_create_post(run_app, browser):
     create_page.visit_page()
 
     # User is not logged in and gets redirected to login page.
-    login_page = LoginPage(browser) # This just creates page abstraction
+    login_page = LoginPage(browser)
 
     # User logs in.
     test_user = base.create_test_user()
