@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>JS Tests</title>
+  <link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.0.1.css">
+  <link rel="stylesheet" href="../style.css">
+  <script src="https://code.jquery.com/qunit/qunit-2.0.1.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+  <script src="../blog.js"></script>
+  <script>
+  QUnit.module('comments tests', {
+    beforeEach: applyHandlers,
+    afterEach: function() {
+      var comments = $('.comment');
+      var comment = $(comments[0]);
+      var cancelButton = comment.find('.comment__edit--cancel');
+      var editButton = comment.find('.comment__edit');
+      cancelButton.off('click');
+      editButton.off('click');
+    }
+  });
+
+  QUnit.test('comment box is hidden by default', function(assert) {
+    var comments = $('.comment');
+    var comment = $(comments[0]);
+    var commentTextBox = comment.find('.comment__edit--text');
+    assert.ok(commentTextBox.is(':hidden'));
+  });
+
+  QUnit.test('show comment edit box on click', function(assert) {
+    var comments = $('.comment');
+    var comment = $(comments[0]);
+    var editButton = comment.find('.comment__edit--button');
+    var commentForm = comment.find('.comment__edit--form');
+    var commentTextBox = comment.find('.comment__edit--text');
+
+    editButton.trigger('click');
+
+    assert.ok(commentForm.is(':visible'), 'comment form is visible on click');
+    assert.ok(commentTextBox.is(':visible'), 'comment box is visible on click');
+    assert.ok(editButton.is(':hidden'), 'button is hidden on click');
+  });
+  </script>
+</head>
+<body>
+  <div id="qunit"></div>
+  <div id="qunit-fixture">
+    <ul class="comments">
+      <li class="comment">
+        <button class="comment__edit--button">Edit</button>
+        <h3 class="comment__user">A user</h3>
+        <h4 class="comment__date"></h4>
+        <p class="comment__comment">{{ comment.comment }}</p>
+        <form class="comment__edit--form">
+          <textarea class="comment__edit--text"></textarea>
+          <input type="submit">
+          <button class="comment__edit--cancel">Cancel</button>
+        </form>
+      </li>
+
+      <li class="comment">
+        <h3 class="comment__user">B user</h3>
+        <h4 class="comment__date"></h4>
+        <p class="comment__comment">{{ comment.comment }}</p>
+      </li>
+
+      <li class="comment">
+        <button class="comment__edit--button">Edit</button>
+        <h3 class="comment__user">A user</h3>
+        <h4 class="comment__date"></h4>
+        <p class="comment__comment">{{ comment.comment }}</p>
+        <form class="comment__edit--form">
+          <textarea class="comment__edit--text"></textarea>
+          <input type="submit">
+          <button class="comment__edit--cancel">Cancel</button>
+        </form>
+      </li>
+    </ul>
+  </div>
+</body>
+</html>
