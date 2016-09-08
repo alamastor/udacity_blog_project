@@ -30,3 +30,21 @@ class User(ndb.Model):
                 msg = 'User %s appears %s times in db' % (username, len(users))
                 raise RuntimeError(msg)
             return users[0]
+
+
+class Comment(ndb.Model):
+    comment = ndb.TextProperty(required=True)
+    user_id = ndb.IntegerProperty(required=True)
+    datetime = ndb.DateTimeProperty(required=True)
+
+    @classmethod
+    def get_by_post_key(cls, parent_key):
+        return cls.query(ancestor=parent_key).fetch()
+
+    @classmethod
+    def get_by_id_and_post_id(cls, comment_id, post_id):
+        return cls.get_by_id(comment_id, parent=ndb.Key(Post, post_id))
+
+    @property
+    def formatted_date(self):
+        return self.datetime.strftime('%-d-%b-%Y')

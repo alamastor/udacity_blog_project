@@ -1,3 +1,6 @@
+from collections import namedtuple
+from datetime import datetime
+
 import base
 
 
@@ -90,3 +93,49 @@ class PostPage(Page):
     @property
     def title(self):
         return self.browser.find_element_by_class_name('post__title').text
+
+    @property
+    def comments(self):
+        comment_eles = self.browser.find_elements_by_class_name('comment')
+
+        comments = []
+        for ele in comment_eles:
+            comments.append(Comment(self.browser, ele))
+        return comments
+
+    def write_comment(self, comment):
+        comment_form = self.browser.find_element_by_class_name('comment-form')
+        comment_form.find_element_by_name('comment').send_keys(comment)
+        comment_form.find_element_by_class_name('comment-form__submit').click()
+
+
+class Comment(object):
+
+    def __init__(self, browser, element):
+        self.browser = browser
+        self.element = element
+        self.comment = self.element.find_element_by_class_name(
+            'comment__comment'
+        ).text
+        self.username = self.element.find_element_by_class_name(
+            'comment__user'
+        ).text
+        self.datetime = datetime.strptime(
+            self.element.find_element_by_class_name('comment__date').text,
+            '%d-%b-%Y'
+        )
+
+    def edit(self, comment):
+        edit_button = self.element.find_element_by_class_name('comment__edit')
+        edit_button.click()
+
+        edit_box = self.browser.find_element_by_class_name('comment-form__textarea')
+        edit_box.clear()
+        edit_box.send_keys(comment)
+
+        submit_button = self.browser.find_element_by_class_name('comment-form__submit')
+        submit_button.click()
+
+    def delete(self):
+        delete_button = self.element.find_element_by_class_name('delete')
+        delete_button.click()

@@ -2,7 +2,7 @@ import pytest
 
 from datetime import datetime
 
-from blog.models import Post, User
+from blog.models import Post, User, Comment
 
 
 @pytest.fixture
@@ -48,3 +48,41 @@ def test_User_query_by_username(testdb):
     user2.put()
 
     assert User.get_by_username(user1.username) == user1
+
+
+def test_Comment_get_by_post_key(testdb):
+    post_1 = Post(title='asd', content='asdf', datetime=datetime.now())
+    post_1.put()
+    post_2 = Post(title='asdfl', content='asdfx', datetime=datetime.now())
+    post_2.put()
+    comment1 = Comment(
+        parent=post_1.key, comment='asdf', user_id=1, datetime=datetime.now()
+    )
+    comment1.put()
+    comment2 = Comment(
+        parent=post_2.key, comment='abc', user_id=1, datetime=datetime.now()
+    )
+    comment2.put()
+    comment3 = Comment(
+        parent=post_2.key, comment='qwe', user_id=5, datetime=datetime.now()
+    )
+    comment3.put()
+
+    assert Comment.get_by_post_key(post_2.key) == [comment2, comment3]
+
+
+def test_Comment_formatted_date(testdb):
+    comment = Comment(comment='asdf', user_id=1, datetime=datetime(2015, 2, 1))
+
+    assert comment.formatted_date == '1-Feb-2015'
+
+
+def test_Comment_get_by_id_and_post_id(testdb):
+    post = Post(title='asd', content='asdf', datetime=datetime.now())
+    post.put()
+    comment = Comment(
+        parent=post.key, comment='asdf', user_id=1, datetime=datetime.now()
+    )
+    comment.put()
+
+    assert Comment.get_by_id_and_post_id(comment.key.id(), post.key.id()) == comment

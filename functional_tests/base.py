@@ -1,17 +1,20 @@
 from collections import namedtuple
+from datetime import datetime
+import random
 
 import pytest
 import requests
 from bs4 import BeautifulSoup
 
-MAIN_PAGE_URL = 'localhost:8080'
-DATASTORE_URL = 'http://localhost:8000/datastore'
+from blog import auth
+
+MAIN_PAGE_URL = 'http://localhost:8080'
 
 
 @pytest.fixture
 def browser():
     from selenium import webdriver
-    browser = webdriver.Firefox()
+    browser = webdriver.Chrome()
     yield browser
 
     browser.quit()
@@ -34,33 +37,43 @@ def run_app():
     app_proc.wait()
 
 
-def write_to_db(entity_kind, fields):
-    page = requests.get('%s?edit=%s' % (DATASTORE_URL, entity_kind))
-    soup = BeautifulSoup(page.content, 'html.parser')
-    xsrf_token = soup.find('input', {'name': 'xsrf_token'})['value']
-    post_data = {
-        'kind': entity_kind,
-        'xsrf_token': xsrf_token
-    }
-    for field in fields:
-        post_data['%s|%s' % (field.type, field.name)] = field.value
-    requests.post(DATASTORE_URL + '/edit', data=post_data)
+def create_test_user(username=None, password=None, email=None):
+    if not username:
+        username = 'random_user_%i' % random.randint(0, 100000)
+    if not password:
+        password = str(random.randint(0, 100000))
+    if not email:
+        email = '%i@%i.com' % (random.randint(0, 100000), random.randint(0, 100000))
+    res = requests.post('%s/signup' % MAIN_PAGE_URL, {
+        'username': username,
+        'password': password,
+        'verify': password,
+        'email': email
+    })
 
-    # Get ID of entry that was just added.
-    table_page = requests.get('%s?kind=%s' % (DATASTORE_URL, entity_kind))
-    soup = BeautifulSoup(table_page.content, 'html.parser')
-    entity_id = int(soup.find_all('tr')[-1].find_all('td')[3].text)
-    return entity_id
+    user_id = int(res.request.headers['Cookie'].split('=')[1].split('|')[0])
+    User = namedtuple('User', ['username', 'password', 'email', 'user_id'])
+    return User(username, password, email, user_id)
 
 
-def create_test_user():
-    User = namedtuple('User', ['username', 'password'])
-    test_user = User('Billy_Bob', '!Password')
-    Field = namedtuple('Field', ['type', 'name', 'value'])
-    write_to_db('User', (
-        Field('string', 'username', test_user.username),
-        Field('string', 'pw_hash', 'ea6b636e740f821220fe50263f127519a5185fe875df414bbe6b00de21a5b282'),
-        Field('string', 'salt', '12345678'),
-    ))
+def create_test_post(title, content, user_id=None):
+    if not user_id:
+        user_id = create_test_user().user_id
+    auth_cookie = {'sess': '%i|%s' % (user_id, auth.make_secure_val(user_id))}
 
-    return test_user
+    res = requests.post('%s/create' % MAIN_PAGE_URL, {
+        'title': title, 'content': content
+    }, cookies=auth_cookie)
+
+    return int(res.url.split('/')[-1])
+
+
+def create_test_comment(post_id, comment, user_id=None):
+    if not user_id:
+        user_id = create_test_user().user_id
+
+    auth_cookie = {'sess': '%i|%s' % (user_id, auth.make_secure_val(user_id))}
+
+    res= requests.post('%s/post/%i/comment' % (MAIN_PAGE_URL, post_id), {
+        'comment': comment
+    }, cookies=auth_cookie)

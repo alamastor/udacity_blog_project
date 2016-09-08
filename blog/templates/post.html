@@ -3,4 +3,27 @@
   <h1 class="post__title">{{ post.title }}</h1>
   <h3 class="post__date">{{ post.date_str }}</h3>
   <p class="post__content">{{ post.formatted_content }}</p>
+  <h2>Comments</h2>
+  {% for comment in comments %}
+    <div class="comment">
+      {% if user and user.key.id() == comment.user_id %}
+        <a class="comment__edit" href="/post/{{ post.key.id() }}/comment/{{ comment.key.id() }}">Edit</a>
+        <form method="post" action="/post/{{ post.key.id() }}/comment/{{ comment.key.id() }}">
+          <input class="delete" type="submit" name="delete">
+        </form>
+      {% endif %}
+      <h3 class="comment__user">{{ comment.username }}</h3>
+      <h4 class="comment__date">{{ comment.formatted_date }}</h4>
+      <p class="comment__comment">{{ comment.comment }}</p>
+    </div>
+  {% endfor %}
+  {% if user %}
+    <form class="comment-form" method="post" action="/post/{{ post.key.id() }}/comment">
+      <textarea name="comment"></textarea>
+      <input class="comment-form__submit" type="submit">
+    </form>
+    <div class="error">{{ error }}</div>
+  {% else %}
+    <h3 class="login-message">You must be logged in to comment.</h3>
+  {% endif %}
 {% endblock %}

@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block body %}
+  <h1 class="post__title">Write comment</h1>
+  {% if comment %}
+    <form class="comment-form" method="post" action="/post/{{ post_id }}/comment/{{ comment.key.id() }}">
+  {% else %}
+    <form class="comment-form" method="post" action="/post/{{ post_id }}/comment">
+  {% endif %}}
+    <textarea class="comment-form__textarea" name="comment">{{ comment.comment }}</textarea>
+    <input class="comment-form__submit" type="submit">
+  </form>
+  <div class="error">{{ error }}</div>
+{% endblock %}

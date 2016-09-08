@@ -3,7 +3,7 @@ from datetime import datetime
 import re
 
 from handlers import Handler, AuthHandler
-from models import Post, User
+from models import Post, User, Comment
 import auth
 
 
@@ -15,12 +15,17 @@ class HomePage(Handler, AuthHandler):
         self.render('home_page.html', user=self.user, posts=posts)
 
 
-class PostPage(Handler):
+class PostPage(Handler, AuthHandler):
 
     def get(self, post_id):
-        post = Post.get_by_id(int(post_id))
+        post_id = int(post_id)
+        post = Post.get_by_id(post_id)
         if post:
-            self.render('post.html', post=post)
+            comments = Comment.get_by_post_key(post.key)
+            comments.sort(key=lambda x: x.datetime)
+            self.render(
+                'post.html', user=self.user, post=post, comments=comments
+            )
         else:
             self.abort(404)
 
@@ -112,8 +117,110 @@ class CreatePage(Handler, AuthHandler):
                 )
                 post.put()
 
-                self.redirect('/post/' + str(post.key.id()))
+                self.redirect('/post/%i' % post.key.id())
             else:
                 self.render('create.html', title=title, content=content, errors=errors)
         else:
             self.abort(401)
+
+
+class CommentPage(Handler, AuthHandler):
+
+    def __init__(self, *args, **kwargs):
+        self._blog_post = None
+        super(self.__class__, self).__init__(*args, **kwargs)
+
+    def get(self, post_id, comment_id=None):
+        self.post_id = int(post_id)
+        if comment_id:
+            self.comment_id = int(comment_id)
+        else:
+            self.comment_id = None
+
+        if self.user:
+            self.render(
+                'comment.html',
+                user=self.user,
+                comment=self.get_comment(),
+                post_id=self.post_id
+            )
+        else:
+            self.abort(401)
+
+    def post(self, post_id, comment_id=None):
+        if self.user:
+            self.post_id = int(post_id)
+            if comment_id:
+                self.comment_id = int(comment_id)
+            else:
+                self.comment_id = None
+
+            comment_text = self.request.get('comment')
+            delete = self.request.get('delete')
+
+            if delete:
+                self.delete()
+
+            else:
+                if comment_text:
+                    self.create_or_update_comment(comment_text)
+                    self.redirect('/post/%i' % self.post_id)
+                else:
+                    error = 'Comment cannot be empty.'
+                    self.render(
+                        'comment.html',
+                        user=self.user,
+                        comment=comment_text,
+                        error=error
+                    )
+        else:
+            self.abort(401)
+
+    def create_or_update_comment(self, comment_text):
+        comment = self.get_comment()
+        if comment:
+            comment.comment = comment_text
+            comment.datetime = datetime.now()
+        else:
+            comment = Comment(
+                parent=self.blog_post.key,
+                comment=comment_text,
+                user_id=self.user.key.id(),
+                datetime=datetime.now()
+            )
+        comment.put()
+
+    @property
+    def blog_post(self):
+        if not self._blog_post:
+            self._blog_post = Post.get_by_id(self.post_id)
+        return self._blog_post
+
+    def get_comment(self):
+        if self.comment_id:
+            comment = Comment.get_by_id_and_post_id(
+                self.comment_id, self.post_id
+            )
+        else:
+            comment = None
+
+        if self.comment_id and not comment:
+            self.abort(404)
+
+        if comment and comment.user_id != self.user.key.id():
+            self.abort(401)
+
+        self._comment = comment
+
+        return comment
+
+
+    def delete(self):
+        comment = Comment.get_by_id_and_post_id(self.comment_id, self.post_id)
+
+        if comment.user_id != self.user.key.id():
+            self.abort(401)
+
+        comment.key.delete()
+
+        self.redirect('/post/%i' % self.post_id)
