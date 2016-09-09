@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block body %}
+  <form method="post">
+    <input class="post-form__post-title" value="{{ post.title }}" name="title" />
+    <textarea class="post-form__post-content" name="content">{{ post.content }}</textarea>
+    <input class="post-form__submit" type="submit">
+  </form>
+  {% for error in errors %}
+    <p class="error">{{ error }}</p>
+  {% endfor %}
+{% endblock %}

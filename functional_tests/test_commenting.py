@@ -3,16 +3,16 @@ from datetime import datetime
 import pytest
 from selenium.webdriver.remote.errorhandler import NoSuchElementException
 
-from pages import PostPage, LoginPage
+from pages import BlogPostPage, LoginPage
 import base
 from base import run_app, browser
 
 
-def test_post_page(run_app, browser):
+def test_commenting_page(run_app, browser):
     # Add some posts to db.
-    base.create_test_post('Post 1', 'asdfasdfa')
-    other_post_id = base.create_test_post('Post 2', 'asdfasdfadf')
-    post_id = base.create_test_post('Post 3', 'asdfasfklanwemf')
+    base.create_test_blog_post('Post 1', 'asdfasdfa')
+    other_post_id = base.create_test_blog_post('Post 2', 'asdfasdfadf')
+    post_id = base.create_test_blog_post('Post 3', 'asdfasfklanwemf')
 
     # Add comments to those posts.
     base.create_test_comment(other_post_id, 'weqrqewr')
@@ -21,7 +21,7 @@ def test_post_page(run_app, browser):
     base.create_test_comment(post_id, 'wexxrqewr')
 
     # User visit post page.
-    post_page = PostPage(browser, post_id)
+    post_page = BlogPostPage(browser, post_id)
     post_page.visit_page()
 
     # Post is visible on page.

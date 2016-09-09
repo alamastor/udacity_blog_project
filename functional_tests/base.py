@@ -56,7 +56,7 @@ def create_test_user(username=None, password=None, email=None):
     return User(username, password, email, user_id)
 
 
-def create_test_post(title, content, user_id=None):
+def create_test_blog_post(title, content, user_id=None):
     if not user_id:
         user_id = create_test_user().user_id
     auth_cookie = {'sess': '%i|%s' % (user_id, auth.make_secure_val(user_id))}

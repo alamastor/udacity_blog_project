@@ -5,12 +5,36 @@ import base
 
 
 class Page(object):
+
     def __init__(self, browser, url):
         self.browser = browser
         self.url = url
 
     def visit_page(self):
         self.browser.get(self.url)
+
+
+class HomePage(object):
+
+    def __init__(self):
+        super(HomePage, self).__init__(browser, base.MAIN_PAGE_URL)
+
+        def assert_open(self):
+            header_text = browser.find_element_by_tag_name('h1').text
+            assert header_text == 'Bloggity!'
+
+        def blog_posts(self):
+            post_eles = browser.find_elements_by_class_name('post')
+            return [BlogPost(x) for x in post_eles]
+
+
+class BlogPost(object):
+
+    def __init__(self, element):
+        self.element = element
+
+    def title(self):
+        return self.element.find_element_by_class_name('post__title').text
 
 
 class SignUpPage(Page):
@@ -83,16 +107,43 @@ class CreatePage(Page):
         return self.browser.find_element_by_class_name('error').text
 
 
-class PostPage(Page):
+class BlogPostPage(Page):
 
     def __init__(self, browser, post_no):
-        super(PostPage, self).__init__(
+        super(BlogPostPage, self).__init__(
             browser, '%s/post/%i' % (base.MAIN_PAGE_URL, post_no)
         )
 
     @property
     def title(self):
         return self.browser.find_element_by_class_name('post__title').text
+
+    @property
+    def content(self):
+        return self.browser.find_element_by_class_name('post__content').text
+
+    def edit(self, title=None, content=None):
+        edit_button = self.browser.find_element_by_class_name('post__edit')
+        edit_button.click()
+
+        if title:
+            title_area = self.browser.find_element_by_class_name('post-form__post-title')
+            title_area.clear()
+            title_area.send_keys(title)
+
+        if content:
+            content_area = self.browser.find_element_by_class_name('post-form__post-content')
+            content_area.clear()
+            content_area.send_keys(content)
+
+        submit_button = self.browser.find_element_by_class_name(
+            'post-form__submit'
+        )
+        submit_button.click()
+
+    def delete(self):
+        delete_button = self.browser.find_element_by_class_name('post__delete')
+        delete_button.click()
 
     @property
     def comments(self):

@@ -19,9 +19,10 @@ def test_Post_date_str(testdb):
     post = Post(
         title='xz',
         content='asdf',
-        datetime=datetime(2016, 5, 3, 13, 6, 33)
+        datetime=datetime(2016, 5, 3, 13, 6, 33),
+        user_id=1
     )
-    assert post.date_str == '03-May-2016'
+    assert post.date_str == '3-May-2016'
 
 
 def test_formatted_content_adds_br_to_Post_content(testdb):
@@ -34,7 +35,8 @@ def test_formatted_content_adds_br_to_Post_content(testdb):
     post = Post(
         title='asd',
         content=content,
-        datetime=datetime(2015, 12, 12)
+        datetime=datetime(2015, 12, 12),
+        user_id=1
     )
     assert post.formatted_content == (
         'asdf asdfa sdf<br>asdfasdf asdf asdf<br>asdfasdf sdf'
@@ -51,9 +53,9 @@ def test_User_query_by_username(testdb):
 
 
 def test_Comment_get_by_post_key(testdb):
-    post_1 = Post(title='asd', content='asdf', datetime=datetime.now())
+    post_1 = Post(title='asd', content='asdf', datetime=datetime.now(), user_id=1)
     post_1.put()
-    post_2 = Post(title='asdfl', content='asdfx', datetime=datetime.now())
+    post_2 = Post(title='asdfl', content='asdfx', datetime=datetime.now(), user_id=1)
     post_2.put()
     comment1 = Comment(
         parent=post_1.key, comment='asdf', user_id=1, datetime=datetime.now()
@@ -78,7 +80,7 @@ def test_Comment_formatted_date(testdb):
 
 
 def test_Comment_get_by_id_and_post_id(testdb):
-    post = Post(title='asd', content='asdf', datetime=datetime.now())
+    post = Post(title='asd', content='asdf', datetime=datetime.now(), user_id=1)
     post.put()
     comment = Comment(
         parent=post.key, comment='asdf', user_id=1, datetime=datetime.now()

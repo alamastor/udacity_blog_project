@@ -1,4 +1,5 @@
 from collections import namedtuple
+from datetime import datetime
 
 import pytest
 
@@ -9,17 +10,8 @@ from base import run_app, browser
 @pytest.fixture
 def add_posts():
     Field = namedtuple('Field', ['type', 'name', 'value'])
-    base.write_to_db('Post', (
-        Field('string', 'title', 'Post 1'),
-        Field('Text', 'content', 'asdfasfklanwemfl;aknf'),
-        Field('datetime', 'datetime', '2016-8-10 06:12:23')
-    ))
-    base.write_to_db('Post', (
-        Field('string', 'title', 'Post 2'),
-        Field('Text', 'content', 'asdfasfklanwemfl;aknf'),
-        Field('datetime', 'datetime', '2016-8-11 06:12:23')
-    ))
-
+    base.create_test_blog_post('Post 1', 'asdfasfklanwemfl;aknf')
+    base.create_test_blog_post('Post 2', 'asdfasfklanwemfl;aknf')
 
 def test_user_can_view_posts(run_app, browser, add_posts):
     # User visits main page.
@@ -41,4 +33,4 @@ def test_user_can_view_posts(run_app, browser, add_posts):
     header_text = browser.find_element_by_tag_name('h1').text
     post_time = browser.find_element_by_class_name('post__date').text
     assert header_text == 'Post 2'
-    assert post_time == '11-Aug-2016'
+    assert post_time == datetime.now().strftime('%-d-%b-%Y')

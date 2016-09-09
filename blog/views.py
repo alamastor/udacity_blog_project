@@ -20,6 +20,7 @@ class PostPage(Handler, AuthHandler):
     def get(self, post_id):
         post_id = int(post_id)
         post = Post.get_by_id(post_id)
+
         if post:
             comments = Comment.get_by_post_key(post.key)
             comments.sort(key=lambda x: x.datetime)
@@ -28,6 +29,53 @@ class PostPage(Handler, AuthHandler):
             )
         else:
             self.abort(404)
+
+
+class EditBlogPostPage(Handler, AuthHandler):
+    TITLE_RE = re.compile(r'^.{4,80}')
+    CONTENT_RE = re.compile(r'^[\S\s]{4,}')
+
+    def get(self, post_id):
+        post_id = int(post_id)
+        post = Post.get_by_id(post_id)
+
+        if not post:
+            self.abort(404)
+
+        if not self.user or post.user_id != self.user.key.id():
+            self.abort(401)
+
+        self.render('blog_post_edit.html', post=post)
+
+
+    def post(self, post_id):
+        post_id = int(post_id)
+        post = Post.get_by_id(post_id)
+
+        if not post:
+            self.abort(404)
+
+        if not self.user or post.user_id != self.user.key.id():
+            self.abort(401)
+
+        title = self.request.get('title')
+        content = self.request.get('content')
+
+        errors = []
+        if not self.TITLE_RE.match(title):
+            errors.append('Invalid title')
+        if not self.CONTENT_RE.match(content):
+            errors.append('Invalid content')
+
+        if not errors:
+            post.title = title
+            post.content = content
+            post.put()
+
+            self.redirect('/post/%i' % post.key.id())
+        else:
+            self.render('blog_post_edit.html', post=post, errors=errors)
+
 
 
 class LoginPage(Handler, AuthHandler):
@@ -113,7 +161,8 @@ class CreatePage(Handler, AuthHandler):
                 post = Post(
                     title=title,
                     content=content,
-                    datetime=datetime.now()
+                    datetime=datetime.now(),
+                    user_id=self.user.key.id()
                 )
                 post.put()
 

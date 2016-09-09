@@ -6,37 +6,25 @@ import webtest
 from webtest import AppError
 from bs4 import BeautifulSoup
 
-from views_base import testapp, fake_user
+import views_base
+from views_base import testapp, fake_user, mock_Post, mock_comments
 from blog import auth
 
 
-@pytest.fixture
-def mock_Post(mocker):
-    Post = namedtuple('Post', ['title', 'content', 'datetime', 'key'])
-    mocked_Post = mocker.patch('blog.views.Post', autospec=True)
-    mocked_post = mocker.Mock()
-    mocked_post.key = mocker.Mock(return_value='A1')
-    mocked_post.key.id = mocker.Mock(return_value=1)
-    mocked_Post.get_by_id.return_value = Post(
-        'Post 1',
-        'dfjals;dfjawpoefinasdni',
-        datetime(2016, 8, 10),
-        mocked_post.key
-    )
-    return mocked_post
+def mock_Comment(mocker, comment, user_id, comment_id=0):
+    mock_Comment = mocker.patch('blog.views.Comment', autospec=True)
+    key = mocker.Mock()
+    key.id.return_value = comment_id
+    mock_comment = mocker.Mock()
+    type(mock_comment).comment = comment
+    type(mock_comment).user_id = user_id
+    type(mock_comment).datetime = datetime.now()
+    type(mock_comment).key = key
 
+    mock_Comment.get_by_id_and_post_id.return_value = mock_comment
+    mock_Comment.get_by_post_key.return_value = [mock_comment]
 
-@pytest.fixture
-def mock_comments(mocker):
-    Comment = namedtuple('Comment', [
-        'comment', 'datetime', 'formatted_date', 'username'
-    ])
-    mocked_Comment = mocker.patch('blog.views.Comment', autospec=True)
-    mocked_Comment.get_by_post_key.return_value = [
-            Comment('A comment', datetime(2014, 1, 1), '1-Jan-2014', 'A user'),
-            Comment('B comment', datetime(2015, 1, 1), '1-Jan-2015', 'B user'),
-            Comment('C comment', datetime(2014, 1, 2), '2-Jan-2014', 'C user'),
-            ]
+    return mock_comment
 
 
 def test_get_post_returns_404_if_post_does_not_exist(testapp):
@@ -56,17 +44,9 @@ def soup(testapp, mock_Post, mock_comments):
     response = testapp.get('/post/%i' % mock_Post.key.id())
     return BeautifulSoup(response.normal_body, 'html.parser')
 
-
-def logged_in_get_post_page(testapp, post_id, user_id):
-    return testapp.get('/post/%i' % post_id, headers={
-        'Cookie': 'sess=%s|%s; Path=/' % (
-            user_id, auth.make_secure_val(user_id)
-        )
-    })
-
 @pytest.fixture
 def soup_logged_in(testapp, fake_user, mock_Post, mock_comments):
-    response = logged_in_get_post_page(
+    response = views_base.logged_in_get_post_page(
         testapp,
         mock_Post.key.id(),
         fake_user.key.id()
@@ -127,24 +107,12 @@ def logged_in_get_comment_page(testapp, post_id, user_id, comment_id=None):
     })
 
 
-def logged_in_post(testapp, url, user_id, post_dict={}):
-    return testapp.post(
-        url,
-        post_dict,
-        headers={
-            'Cookie': 'sess=%s|%s; Path=/' % (
-                user_id, auth.make_secure_val(user_id)
-            )
-        },
-    )
-
-
 def logged_in_post_comment(testapp, post_id, user_id, comment, comment_id=None):
     if comment_id:
         url = '/post/%i/comment/%i' % (post_id, comment_id)
     else:
         url = '/post/%i/comment' % post_id
-    return logged_in_post(testapp, url, user_id, {'comment': comment})
+    return views_base.logged_in_post(testapp, url, user_id, {'comment': comment})
 
 
 def test_post_comment_calls_Comment(
@@ -229,22 +197,6 @@ def test_get_comment_with_nonexistant_id_returns_404(testapp, fake_user, mock_Po
     assert '404' in str(excinfo.value)
 
 
-def mock_Comment(mocker, comment, user_id, comment_id=0):
-    mock_Comment = mocker.patch('blog.views.Comment', autospec=True)
-    key = mocker.Mock()
-    key.id.return_value = comment_id
-    mock_comment = mocker.Mock()
-    type(mock_comment).comment = comment
-    type(mock_comment).user_id = user_id
-    type(mock_comment).datetime = datetime.now()
-    type(mock_comment).key = key
-
-    mock_Comment.get_by_id_and_post_id.return_value = mock_comment
-    mock_Comment.get_by_post_key.return_value = [mock_comment]
-
-    return mock_comment
-
-
 def test_get_comment_with_other_user_returns_401(
     testapp, fake_user, mock_Post, mocker
 ):
@@ -289,7 +241,6 @@ def test_post_comment_calls_put(testapp, fake_user, mock_Post, mocker):
     post_id = mock_Post.key.id()
 
     mock_comment = mock_Comment(mocker, 'A comment', user_id, 12345)
-
     logged_in_post_comment(testapp, user_id, post_id, 'asdf', 12346)
 
     mock_comment.put.assert_called_once()
@@ -308,13 +259,13 @@ def test_comment_with_same_user_has_delete_button(
     post_id = mock_Post.key.id()
     mock_Comment(mocker, 'C comment', user_id, 1234)
 
-    response = logged_in_get_post_page(testapp, post_id, user_id)
+    response = views_base.logged_in_get_post_page(testapp, post_id, user_id)
     soup = BeautifulSoup(response.normal_body, 'html.parser')
     assert len(soup.find_all(class_='delete')) == 1
 
 
 def logged_in_post_delete(testapp, post_id, comment_id, user_id):
-    return logged_in_post(
+    return views_base.logged_in_post(
         testapp,
         '/post/%i/comment/%i' % (post_id, comment_id),
         user_id,

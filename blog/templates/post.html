@@ -1,5 +1,8 @@
 {% extends "base.html" %}
 {% block body %}
+  {% if user and user.key.id() == post.user_id %}
+    <a class="post__edit" href="/post/{{ post.key.id() }}/edit">Edit</a>
+  {% endif %}
   <h1 class="post__title">{{ post.title }}</h1>
   <h3 class="post__date">{{ post.date_str }}</h3>
   <p class="post__content">{{ post.formatted_content }}</p>

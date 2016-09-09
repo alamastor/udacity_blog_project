@@ -5,10 +5,11 @@ class Post(ndb.Model):
     title = ndb.StringProperty(required=True)
     content = ndb.TextProperty(required=True)
     datetime = ndb.DateTimeProperty(required=True)
+    user_id = ndb.IntegerProperty(required=True)
 
     @property
     def date_str(self):
-        return self.datetime.strftime('%d-%b-%Y')
+        return self.datetime.strftime('%-d-%b-%Y')
 
     @property
     def formatted_content(self):
