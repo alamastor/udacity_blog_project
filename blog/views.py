@@ -16,6 +16,8 @@ class HomePage(Handler, AuthHandler):
 
 
 class BlogPostPage(Handler, AuthHandler):
+    TITLE_RE = re.compile(r'^.{4,80}')
+    CONTENT_RE = re.compile(r'^[\S\s]{4,}')
 
     def get(self, post_id):
         post_id = int(post_id)
@@ -30,48 +32,42 @@ class BlogPostPage(Handler, AuthHandler):
         else:
             self.abort(404)
 
-    def post(self, post_id):
-        post_id = int(post_id)
-        post = BlogPost.get_by_id(post_id, parent=blog_key())
-
-        if not post:
-            self.abort(404)
-
-        if not self.user or post.user_id != self.user.key.id():
+    def post(self, post_id=None):
+        if not self.user:
             self.abort(401)
+
+        if post_id:
+            self.post_id = int(post_id)
+        else:
+            self.post_id = None
 
         if self.request.get('delete') == 'delete':
-            post.key.delete()
-            self.redirect('/')
+            self.delete()
+        else:
+            self.create_or_update()
 
 
-class EditBlogPostPage(Handler, AuthHandler):
-    TITLE_RE = re.compile(r'^.{4,80}')
-    CONTENT_RE = re.compile(r'^[\S\s]{4,}')
+    def get_post(self):
+        if self.post_id:
+            post = BlogPost.get_by_id(self.post_id, parent=blog_key())
 
-    def get(self, post_id):
-        post_id = int(post_id)
-        post = BlogPost.get_by_id(post_id, parent=blog_key())
+            if not post:
+                self.abort(404)
+            if post.user_id != self.user.key.id():
+                self.abort(401)
+        else:
+            post = None
 
-        if not post:
-            self.abort(404)
-
-        if not self.user or post.user_id != self.user.key.id():
-            self.abort(401)
-
-        self.render('blog_post_edit.html', post=post)
+        return post
 
 
-    def post(self, post_id):
-        post_id = int(post_id)
-        post = BlogPost.get_by_id(post_id, parent=blog_key())
+    def delete(self):
+        self.get_post().key.delete()
+        self.redirect('/')
 
-        if not post:
-            self.abort(404)
 
-        if not self.user or post.user_id != self.user.key.id():
-            self.abort(401)
-
+    def create_or_update(self):
+        post = self.get_post()
         title = self.request.get('title')
         content = self.request.get('content')
 
@@ -82,14 +78,56 @@ class EditBlogPostPage(Handler, AuthHandler):
             errors.append('Invalid content')
 
         if not errors:
-            post.title = title
-            post.content = content
+            if post:
+                post.title = title
+                post.content = content
+            else:
+                post = BlogPost(
+                    parent=blog_key(),
+                    title=title,
+                    content=content,
+                    datetime=datetime.now(),
+                    user_id=self.user.key.id()
+                )
             post.put()
 
             self.redirect('/post/%i' % post.key.id())
         else:
-            self.render('blog_post_edit.html', post=post, errors=errors)
+            self.render(
+                'blog_post_create_edit.html',
+                title=title,
+                content=content,
+                errors=errors
+            )
 
+class CreateOrEditBlogPostPage(Handler, AuthHandler):
+
+    def get(self, post_id=None):
+        if not self.user:
+            self.redirect('/login')
+
+        if post_id:
+            post_id = int(post_id)
+            post = BlogPost.get_by_id(post_id, parent=blog_key())
+            if not post:
+                self.abort(404)
+
+            if not self.user or post.user_id != self.user.key.id():
+                self.abort(401)
+
+            title = post.title
+            content = post.content
+        else:
+            post = None
+            title = ''
+            content = ''
+
+        self.render(
+            'blog_post_create_edit.html',
+            post=post,
+            title=title,
+            content=content
+        )
 
 
 class LoginPage(Handler, AuthHandler):
@@ -150,44 +188,6 @@ class SignUpPage(Handler, AuthHandler):
             self.redirect('/')
 
 
-class CreatePage(Handler, AuthHandler):
-    TITLE_RE = re.compile(r'^.{4,80}')
-    CONTENT_RE = re.compile(r'^[\S\s]{4,}')
-
-    def get(self):
-        if self.user:
-            self.render('create.html')
-        else:
-            self.redirect('/login')
-
-    def post(self):
-        if self.user:
-            title = self.request.get('title')
-            content = self.request.get('content')
-
-            errors = []
-            if not self.TITLE_RE.match(title):
-                errors.append('Invalid title')
-            if not self.CONTENT_RE.match(content):
-                errors.append('Invalid content')
-
-            if not errors:
-                post = BlogPost(
-                    parent=blog_key(),
-                    title=title,
-                    content=content,
-                    datetime=datetime.now(),
-                    user_id=self.user.key.id()
-                )
-                post.put()
-
-                self.redirect('/post/%i' % post.key.id())
-            else:
-                self.render('create.html', title=title, content=content, errors=errors)
-        else:
-            self.abort(401)
-
-
 class CommentPage(Handler, AuthHandler):
 
     def __init__(self, *args, **kwargs):
@@ -219,13 +219,11 @@ class CommentPage(Handler, AuthHandler):
             else:
                 self.comment_id = None
 
-            comment_text = self.request.get('comment')
-            delete = self.request.get('delete')
 
-            if delete:
+            if self.request.get('delete') == 'delete':
                 self.delete()
-
             else:
+                comment_text = self.request.get('comment')
                 if comment_text:
                     self.create_or_update_comment(comment_text)
                     self.redirect('/post/%i' % self.post_id)

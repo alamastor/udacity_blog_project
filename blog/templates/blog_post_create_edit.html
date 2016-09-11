@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block body %}
+  {% if post %}
+    <form method="post" action="/post/{{  post.key.id() }}">
+  {% else %}
+    <form method="post" action="/post">
+  {% endif %}
+    <input class="post-form__post-title" value="{{ title }}" name="title" />
+    <textarea class="post-form__post-content" name="content">{{ content }}</textarea>
+    <input class="post-form__submit" type="submit">
+  </form>
+  {% for error in errors %}
+    <p class="error">{{ error }}</p>
+  {% endfor %}
+{% endblock %}

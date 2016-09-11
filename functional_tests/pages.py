@@ -91,7 +91,7 @@ class LoginPage(Page):
 class CreatePage(Page):
 
     def __init__(self, browser):
-        super(CreatePage, self).__init__(browser, base.MAIN_PAGE_URL + '/create')
+        super(CreatePage, self).__init__(browser, base.MAIN_PAGE_URL + '/post/create')
 
     def submit_form(self, title, content):
         title_input = self.browser.find_element_by_name('title')

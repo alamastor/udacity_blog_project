@@ -9,7 +9,7 @@ from blog import auth
 @pytest.fixture
 def get_create_logged_in(testapp, fake_user):
     user_id = fake_user.key.id()
-    return testapp.get('/create', headers={
+    return testapp.get('/post/create', headers={
         'Cookie': 'sess=%s|%s; Path=/' % (
             user_id, auth.make_secure_val(user_id)
         )
@@ -18,7 +18,7 @@ def get_create_logged_in(testapp, fake_user):
 
 def post_logged_in(testapp, fake_user, post_data={}):
     user_id = fake_user.key.id()
-    return testapp.post('/create', post_data, headers={
+    return testapp.post('/post', post_data, headers={
         'Cookie': 'sess=%s|%s; Path=/' % (
             user_id, auth.make_secure_val(user_id)
         )
@@ -26,7 +26,7 @@ def post_logged_in(testapp, fake_user, post_data={}):
 
 
 def test_create_view_redirects_to_signup_if_not_logged_in(testapp):
-    response = testapp.get('/create')
+    response = testapp.get('/post/create')
     assert response.status_int == 302
     assert response.location.split('/')[-1] == 'login'
 
@@ -47,7 +47,7 @@ def test_create_view_has_correct_form_fields(get_create_logged_in):
 
 def test_post_by_logged_out_user_raises_401(testapp):
     with pytest.raises(AppError) as excinfo:
-        testapp.post('/create')
+        testapp.post('/post')
     assert '401' in str(excinfo.value)
 
 

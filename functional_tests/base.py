@@ -61,7 +61,7 @@ def create_test_blog_post(title, content, user_id=None):
         user_id = create_test_user().user_id
     auth_cookie = {'sess': '%i|%s' % (user_id, auth.make_secure_val(user_id))}
 
-    res = requests.post('%s/create' % MAIN_PAGE_URL, {
+    res = requests.post('%s/post' % MAIN_PAGE_URL, {
         'title': title, 'content': content
     }, cookies=auth_cookie)
 
