@@ -1,11 +1,23 @@
 from google.appengine.ext import ndb
 
 
-class Post(ndb.Model):
+# Key to use as parent for all blog post to ensure strong-consistancy.
+# This means changes to to BlogPost will be limited to 1/second, if
+# greater than this was require stop using the key and don't rely on
+# strong consistancy.
+def blog_key():
+    return ndb.Key('Blog', 'DEFAULT_BLOG')
+
+
+class BlogPost(ndb.Model):
     title = ndb.StringProperty(required=True)
     content = ndb.TextProperty(required=True)
     datetime = ndb.DateTimeProperty(required=True)
     user_id = ndb.IntegerProperty(required=True)
+
+    @property
+    def full_key(self):
+        return ndb.Key(BlogPost, self.key.id(), parent=blog_key())
 
     @property
     def date_str(self):
@@ -43,8 +55,8 @@ class Comment(ndb.Model):
         return cls.query(ancestor=parent_key).fetch()
 
     @classmethod
-    def get_by_id_and_post_id(cls, comment_id, post_id):
-        return cls.get_by_id(comment_id, parent=ndb.Key(Post, post_id))
+    def get_by_id_and_post_key(cls, comment_id, post_key):
+        return cls.get_by_id(comment_id, parent=post_key)
 
     @property
     def formatted_date(self):

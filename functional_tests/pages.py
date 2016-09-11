@@ -14,18 +14,19 @@ class Page(object):
         self.browser.get(self.url)
 
 
-class HomePage(object):
+class HomePage(Page):
 
-    def __init__(self):
+    def __init__(self, browser):
         super(HomePage, self).__init__(browser, base.MAIN_PAGE_URL)
 
-        def assert_open(self):
-            header_text = browser.find_element_by_tag_name('h1').text
-            assert header_text == 'Bloggity!'
+    def assert_open(self):
+        header_text = self.browser.find_element_by_tag_name('h1').text
+        assert header_text == 'Bloggity!'
 
-        def blog_posts(self):
-            post_eles = browser.find_elements_by_class_name('post')
-            return [BlogPost(x) for x in post_eles]
+    @property
+    def blog_posts(self):
+        post_eles = self.browser.find_elements_by_class_name('post')
+        return [BlogPost(x) for x in post_eles]
 
 
 class BlogPost(object):
@@ -33,6 +34,7 @@ class BlogPost(object):
     def __init__(self, element):
         self.element = element
 
+    @property
     def title(self):
         return self.element.find_element_by_class_name('post__title').text
 

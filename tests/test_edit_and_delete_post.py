@@ -3,15 +3,15 @@ import pytest
 from webtest import AppError
 
 import views_base
-from views_base import testapp, fake_user, mock_Post, mock_comments
+from views_base import testapp, fake_user, mock_BlogPost, mock_comments
 
 
 def test_view_blog_post_as_different_user_has_no_edit_link(
-    testapp, mock_Post, fake_user, mock_comments
+    testapp, mock_BlogPost, fake_user, mock_comments
 ):
     response = views_base.logged_in_get_post_page(
         testapp,
-        mock_Post.key.id(),
+        mock_BlogPost.key.id(),
         fake_user.key.id()
     )
     soup = BeautifulSoup(response.normal_body, 'html.parser')
@@ -21,7 +21,7 @@ def test_view_blog_post_as_different_user_has_no_edit_link(
 def test_view_blog_post_as_same_user_has_edit_link(
     testapp, mocker, fake_user, mock_comments
 ):
-    mock_post = mock_Post(mocker, user_id=fake_user.key.id())
+    mock_post = mock_BlogPost(mocker, user_id=fake_user.key.id())
     response = views_base.logged_in_get_post_page(
         testapp,
         mock_post.key.id(),
@@ -34,26 +34,26 @@ def test_view_blog_post_as_same_user_has_edit_link(
 def test_get_noexistant_post_edit_page_return_404(
     testapp, mocker
 ):
-    mock_Post = mocker.patch('blog.views.Post')
-    mock_Post.get_by_id.return_value = None
+    mock_BlogPost = mocker.patch('blog.views.BlogPost')
+    mock_BlogPost.get_by_id.return_value = None
     with pytest.raises(AppError) as excinfo:
         testapp.get('/post/%i/edit' % 123)
     assert '404' in str(excinfo.value)
 
 
 def test_get_post_edit_page_return_401_if_not_logged_in(
-    testapp, mock_Post
+    testapp, mock_BlogPost
 ):
     with pytest.raises(AppError) as excinfo:
-        testapp.get('/post/%i/edit' % mock_Post.key.id())
+        testapp.get('/post/%i/edit' % mock_BlogPost.key.id())
     assert '401' in str(excinfo.value)
 
 
 def test_get_post_edit_page_return_401_if_logged_in_as_different_user(
-    testapp, mock_Post, fake_user
+    testapp, mock_BlogPost, fake_user
 ):
     user_id = fake_user.key.id()
-    post_id = mock_Post.key.id()
+    post_id = mock_BlogPost.key.id()
     with pytest.raises(AppError) as excinfo:
         views_base.logged_in_get(testapp, '/post/%i/edit' % post_id, user_id)
     assert '401' in str(excinfo.value)
@@ -63,7 +63,7 @@ def test_get_post_post_edit_page_return_200_if_logged_in_as_same_user(
     testapp, fake_user, mocker
 ):
     user_id = fake_user.key.id()
-    post_id = mock_Post(mocker, user_id).key.id()
+    post_id = mock_BlogPost(mocker, user_id).key.id()
 
     response = views_base.logged_in_get(testapp, '/post/%i/edit' % post_id, user_id)
     assert response.status_int == 200
@@ -73,12 +73,12 @@ def test_authorized_get_post_id_shows_edit_boxes_with_prefilled_vals(
     testapp, fake_user, mocker
 ):
     user_id = fake_user.key.id()
-    post_id = mock_Post(mocker, user_id).key.id()
+    post_id = mock_BlogPost(mocker, user_id).key.id()
     response = views_base.logged_in_get(testapp, '/post/%i/edit' % post_id, user_id)
 
     soup = BeautifulSoup(response.normal_body, 'html.parser')
 
-    # Text values from mocked_Post in views_base
+    # Text values from mocked_BlogPost in views_base
     assert soup.find(class_='post-form__post-title')['value'] == 'Post 1'
     assert soup.find(
         class_='post-form__post-content'
@@ -88,33 +88,33 @@ def test_authorized_get_post_id_shows_edit_boxes_with_prefilled_vals(
 def test_post_to_noexistant_post_edit_page_return_404(
     testapp, mocker
 ):
-    mock_Post = mocker.patch('blog.views.Post')
-    mock_Post.get_by_id.return_value = None
+    mock_BlogPost = mocker.patch('blog.views.BlogPost')
+    mock_BlogPost.get_by_id.return_value = None
     with pytest.raises(AppError) as excinfo:
         testapp.post('/post/%i/edit' % 123)
     assert '404' in str(excinfo.value)
 
 
 def test_post_to_post_edit_page_return_401_if_not_logged_in(
-    testapp, mock_Post
+    testapp, mock_BlogPost
 ):
     with pytest.raises(AppError) as excinfo:
-        testapp.post('/post/%i/edit' % mock_Post.key.id())
+        testapp.post('/post/%i/edit' % mock_BlogPost.key.id())
     assert '401' in str(excinfo.value)
 
 
 def test_post_to_post_edit_page_return_401_if_logged_in_as_different_user(
-    testapp, mock_Post, fake_user
+    testapp, mock_BlogPost, fake_user
 ):
     user_id = fake_user.key.id()
-    post_id = mock_Post.key.id()
+    post_id = mock_BlogPost.key.id()
     with pytest.raises(AppError) as excinfo:
         views_base.logged_in_post(testapp, '/post/%i/edit' % post_id, user_id)
     assert '401' in str(excinfo.value)
 
 def test_post_to_post_edit_page_calls_put(testapp, fake_user, mocker):
     user_id = fake_user.key.id()
-    mock_post = mock_Post(mocker, user_id)
+    mock_post = mock_BlogPost(mocker, user_id)
     post_id = mock_post.key.id()
     views_base.logged_in_post(testapp, '/post/%i/edit' % post_id, user_id, {
         'title': 'new title', 'content': 'new content'
@@ -125,7 +125,7 @@ def test_post_to_post_edit_page_calls_put(testapp, fake_user, mocker):
 
 def test_post_with_invalid_title_shows_error(testapp, fake_user, mocker):
     user_id = fake_user.key.id()
-    mock_post = mock_Post(mocker, user_id)
+    mock_post = mock_BlogPost(mocker, user_id)
     post_id = mock_post.key.id()
     response = views_base.logged_in_post(
         testapp,
@@ -138,7 +138,7 @@ def test_post_with_invalid_title_shows_error(testapp, fake_user, mocker):
 
 def test_post_with_invalid_content_shows_error(testapp, fake_user, mocker):
     user_id = fake_user.key.id()
-    mock_post = mock_Post(mocker, user_id)
+    mock_post = mock_BlogPost(mocker, user_id)
     post_id = mock_post.key.id()
     response = views_base.logged_in_post(
         testapp,
@@ -151,7 +151,7 @@ def test_post_with_invalid_content_shows_error(testapp, fake_user, mocker):
 
 def test_valid_post_redirects_to_post_page(testapp, fake_user, mocker):
     user_id = fake_user.key.id()
-    mock_post = mock_Post(mocker, user_id)
+    mock_post = mock_BlogPost(mocker, user_id)
     post_id = mock_post.key.id()
     response = views_base.logged_in_post(
         testapp,
@@ -161,3 +161,88 @@ def test_valid_post_redirects_to_post_page(testapp, fake_user, mocker):
     )
     assert response.status_int == 302
     assert response.location.split('/')[-2:] == ['post', '1']
+
+
+def test_view_blog_post_as_different_user_has_no_delete_button(
+    testapp, mock_BlogPost, fake_user, mock_comments
+):
+    response = views_base.logged_in_get_post_page(
+        testapp,
+        mock_BlogPost.key.id(),
+        fake_user.key.id()
+    )
+    soup = BeautifulSoup(response.normal_body, 'html.parser')
+    assert not soup.find(class_='post__delete')
+
+
+def test_view_blog_post_as_same_user_has_delete_button(
+    testapp, mocker, fake_user, mock_comments
+):
+    mock_post = mock_BlogPost(mocker, user_id=fake_user.key.id())
+    response = views_base.logged_in_get_post_page(
+        testapp,
+        mock_post.key.id(),
+        fake_user.key.id()
+    )
+    soup = BeautifulSoup(response.normal_body, 'html.parser')
+    assert soup.find(class_='post__delete')
+
+
+def test_post_delete_to_noexistant_post_returns_404(
+    testapp, mocker
+):
+    mock_BlogPost = mocker.patch('blog.views.BlogPost')
+    mock_BlogPost.get_by_id.return_value = None
+    with pytest.raises(AppError) as excinfo:
+        testapp.post('/post/%i' % 123, {
+            'delete': 'delete'
+        })
+    assert '404' in str(excinfo.value)
+
+
+def test_post_delete_returns_401_if_not_logged_in(
+    testapp, mock_BlogPost
+):
+    with pytest.raises(AppError) as excinfo:
+        testapp.post('/post/%i' % mock_BlogPost.key.id(), {
+            'delete': 'delete'
+        })
+    assert '401' in str(excinfo.value)
+
+
+def test_post_delete_returns_401_if_logged_in_as_different_user(
+    testapp, mock_BlogPost, fake_user
+):
+    user_id = fake_user.key.id()
+    post_id = mock_BlogPost.key.id()
+    with pytest.raises(AppError) as excinfo:
+        views_base.logged_in_post(testapp, '/post/%i' % post_id, user_id, {
+            'delete': 'delete'
+        })
+    assert '401' in str(excinfo.value)
+
+
+def test_post_delete_calls_delete(testapp, fake_user, mocker):
+    user_id = fake_user.key.id()
+    mock_post = mock_BlogPost(mocker, user_id)
+    post_id = mock_post.key.id()
+    views_base.logged_in_post(testapp, '/post/%i' % post_id, user_id, {
+        'delete': 'delete'
+    })
+
+    mock_post.key.delete.assert_called_once()
+
+
+def test_valid_post_delete_redirects_to_home_page(testapp, fake_user, mocker):
+    user_id = fake_user.key.id()
+    mock_post = mock_BlogPost(mocker, user_id)
+    post_id = mock_post.key.id()
+    response = views_base.logged_in_post(
+        testapp,
+        '/post/%i' % post_id,
+        user_id,
+        {'delete': 'delete'}
+    )
+    assert response.status_int == 302
+    # Test it's the home page.
+    assert response.location == testapp.get('/').request.url

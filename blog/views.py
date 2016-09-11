@@ -3,23 +3,23 @@ from datetime import datetime
 import re
 
 from handlers import Handler, AuthHandler
-from models import Post, User, Comment
+from models import blog_key, BlogPost, User, Comment
 import auth
 
 
 class HomePage(Handler, AuthHandler):
 
     def get(self):
-        posts = Post.query().fetch(10)
+        posts = BlogPost.query(ancestor=blog_key()).fetch(10)
         posts.sort(key=lambda p: p.datetime, reverse=True)
         self.render('home_page.html', user=self.user, posts=posts)
 
 
-class PostPage(Handler, AuthHandler):
+class BlogPostPage(Handler, AuthHandler):
 
     def get(self, post_id):
         post_id = int(post_id)
-        post = Post.get_by_id(post_id)
+        post = BlogPost.get_by_id(post_id, parent=blog_key())
 
         if post:
             comments = Comment.get_by_post_key(post.key)
@@ -30,6 +30,20 @@ class PostPage(Handler, AuthHandler):
         else:
             self.abort(404)
 
+    def post(self, post_id):
+        post_id = int(post_id)
+        post = BlogPost.get_by_id(post_id, parent=blog_key())
+
+        if not post:
+            self.abort(404)
+
+        if not self.user or post.user_id != self.user.key.id():
+            self.abort(401)
+
+        if self.request.get('delete') == 'delete':
+            post.key.delete()
+            self.redirect('/')
+
 
 class EditBlogPostPage(Handler, AuthHandler):
     TITLE_RE = re.compile(r'^.{4,80}')
@@ -37,7 +51,7 @@ class EditBlogPostPage(Handler, AuthHandler):
 
     def get(self, post_id):
         post_id = int(post_id)
-        post = Post.get_by_id(post_id)
+        post = BlogPost.get_by_id(post_id, parent=blog_key())
 
         if not post:
             self.abort(404)
@@ -50,7 +64,7 @@ class EditBlogPostPage(Handler, AuthHandler):
 
     def post(self, post_id):
         post_id = int(post_id)
-        post = Post.get_by_id(post_id)
+        post = BlogPost.get_by_id(post_id, parent=blog_key())
 
         if not post:
             self.abort(404)
@@ -158,7 +172,8 @@ class CreatePage(Handler, AuthHandler):
                 errors.append('Invalid content')
 
             if not errors:
-                post = Post(
+                post = BlogPost(
+                    parent=blog_key(),
                     title=title,
                     content=content,
                     datetime=datetime.now(),
@@ -242,13 +257,13 @@ class CommentPage(Handler, AuthHandler):
     @property
     def blog_post(self):
         if not self._blog_post:
-            self._blog_post = Post.get_by_id(self.post_id)
+            self._blog_post = BlogPost.get_by_id(self.post_id, parent=blog_key())
         return self._blog_post
 
     def get_comment(self):
         if self.comment_id:
-            comment = Comment.get_by_id_and_post_id(
-                self.comment_id, self.post_id
+            comment = Comment.get_by_id_and_post_key(
+                self.comment_id, self.blog_post.key
             )
         else:
             comment = None
@@ -265,7 +280,9 @@ class CommentPage(Handler, AuthHandler):
 
 
     def delete(self):
-        comment = Comment.get_by_id_and_post_id(self.comment_id, self.post_id)
+        comment = Comment.get_by_id_and_post_key(
+            self.comment_id, self.blog_post.key
+        )
 
         if comment.user_id != self.user.key.id():
             self.abort(401)

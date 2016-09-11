@@ -2,7 +2,7 @@ import pytest
 
 from datetime import datetime
 
-from blog.models import Post, User, Comment
+from blog.models import blog_key, BlogPost, User, Comment
 
 
 @pytest.fixture
@@ -15,8 +15,8 @@ def testdb():
     testbed.init_memcache_stub()
 
 
-def test_Post_date_str(testdb):
-    post = Post(
+def test_BlogPost_date_str(testdb):
+    post = BlogPost(
         title='xz',
         content='asdf',
         datetime=datetime(2016, 5, 3, 13, 6, 33),
@@ -25,14 +25,14 @@ def test_Post_date_str(testdb):
     assert post.date_str == '3-May-2016'
 
 
-def test_formatted_content_adds_br_to_Post_content(testdb):
+def test_formatted_content_adds_br_to_BlogPost_content(testdb):
 
     content=(
         'asdf asdfa sdf\n'
         'asdfasdf asdf asdf\n'
         'asdfasdf sdf'
     )
-    post = Post(
+    post = BlogPost(
         title='asd',
         content=content,
         datetime=datetime(2015, 12, 12),
@@ -53,9 +53,21 @@ def test_User_query_by_username(testdb):
 
 
 def test_Comment_get_by_post_key(testdb):
-    post_1 = Post(title='asd', content='asdf', datetime=datetime.now(), user_id=1)
+    post_1 = BlogPost(
+        parent=blog_key(),
+        title='asd',
+        content='asdf',
+        datetime=datetime.now(),
+        user_id=1
+    )
     post_1.put()
-    post_2 = Post(title='asdfl', content='asdfx', datetime=datetime.now(), user_id=1)
+    post_2 = BlogPost(
+        parent=blog_key(),
+        title='asdfl',
+        content='asdfx',
+        datetime=datetime.now(),
+        user_id=1
+    )
     post_2.put()
     comment1 = Comment(
         parent=post_1.key, comment='asdf', user_id=1, datetime=datetime.now()
@@ -80,11 +92,19 @@ def test_Comment_formatted_date(testdb):
 
 
 def test_Comment_get_by_id_and_post_id(testdb):
-    post = Post(title='asd', content='asdf', datetime=datetime.now(), user_id=1)
+    post = BlogPost(
+        parent=blog_key(),
+        title='asd',
+        content='asdf',
+        datetime=datetime.now(),
+        user_id=1
+    )
     post.put()
     comment = Comment(
         parent=post.key, comment='asdf', user_id=1, datetime=datetime.now()
     )
     comment.put()
 
-    assert Comment.get_by_id_and_post_id(comment.key.id(), post.key.id()) == comment
+    assert Comment.get_by_id_and_post_key(
+        comment.key.id(), post.full_key
+    ) == comment

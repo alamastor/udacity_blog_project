@@ -34,8 +34,8 @@ def fake_user():
 
 
 @pytest.fixture
-def mock_Post(mocker, user_id=2):
-    mocked_Post = mocker.patch('blog.views.Post', autospec=True)
+def mock_BlogPost(mocker, user_id=2):
+    mocked_BlogPost = mocker.patch('blog.views.BlogPost', autospec=True)
     mock_post = mocker.Mock()
     key = mocker.Mock(return_value='A1')
     key.id = mocker.Mock(return_value=1)
@@ -45,7 +45,7 @@ def mock_Post(mocker, user_id=2):
     type(mock_post).key = key
     type(mock_post).user_id = user_id
 
-    mocked_Post.get_by_id.return_value = mock_post
+    mocked_BlogPost.get_by_id.return_value = mock_post
     return mock_post
 
 

@@ -3,7 +3,7 @@ from collections import namedtuple
 import pytest
 from bs4 import BeautifulSoup
 
-from blog.models import Post, User
+from blog.models import BlogPost, User
 from blog import auth
 from views_base import testapp, fake_user
 

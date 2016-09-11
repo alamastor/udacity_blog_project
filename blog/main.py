@@ -1,13 +1,13 @@
 import webapp2
 
 from views import (
-    HomePage, PostPage, LoginPage, SignUpPage, CreatePage, CommentPage,
+    HomePage, BlogPostPage, LoginPage, SignUpPage, CreatePage, CommentPage,
     EditBlogPostPage
 )
 
 ROUTER = [
     ('/', HomePage),
-    ('/post/(\d+)', PostPage),
+    ('/post/(\d+)', BlogPostPage),
     ('/post/(\d+)/edit', EditBlogPostPage),
     ('/post/(\d+)/comment', CommentPage),
     ('/post/(\d+)/comment/(\d+)', CommentPage),

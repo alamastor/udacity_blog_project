@@ -44,7 +44,6 @@ def test_blog_post(run_app, browser):
     assert blog_post_page.title == 'B Post'
     assert blog_post_page.content == 'qwerqtqreqwr'
 
-    import pdb;pdb.set_trace()
     # User edits post.
     blog_post_page.edit(title='C Post', content='updated content')
 
@@ -59,5 +58,5 @@ def test_blog_post(run_app, browser):
     home_page = HomePage(browser)
     home_page.assert_open()
 
-    assert home_page.posts[0].title == 'Post 1'
-    assert len(home_page.posts) == 1
+    assert home_page.blog_posts[0].title == 'A Post'
+    assert len(home_page.blog_posts) == 1
