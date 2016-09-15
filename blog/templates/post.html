@@ -3,9 +3,16 @@
   {% if user and user.key.id() == post.user_id %}
     <a class="post__edit" href="/post/{{ post.key.id() }}/edit">Edit</a>
     <form method="post">
-      <button class="post__delete" type="submit" name="delete" value="delete"/>Delete</button>
+      <button class="post__delete" name="delete" value="delete">Delete</button>
     </form>
-{% endif %}
+  {% endif %}
+  {% if display_likes %}
+    <div class="post__likes">{{ likes }} Likes</div>
+  {% else %}
+    <form method="post">
+      <button class="post__like" name="like" value="like">Like</button>
+    </form>
+  {% endif %}
   <h1 class="post__title">{{ post.title }}</h1>
   <h3 class="post__date">{{ post.date_str }}</h3>
   <p class="post__content">{{ post.formatted_content }}</p>

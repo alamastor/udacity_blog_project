@@ -25,6 +25,7 @@ def test_signup_page_has_form_with_correct_fields(testapp):
 def post_to_signup(testapp, **kwargs):
     return testapp.post('/signup', kwargs)
 
+
 def test_signup_returns_200_on_invalid_post(testapp):
     assert post_to_signup(testapp).status_int == 200
 
@@ -100,3 +101,41 @@ def test_valid_post_calls_login(testapp, mocker):
     mock_login = mocker.patch('blog.views.AuthHandler.log_user_in')
     valid_post(testapp)
     mock_login.assert_called_once()
+
+
+def test_signup_with_after_login_cookie_redirects_correctly(testapp):
+    res = testapp.post(
+        '/signup',
+        dict(
+            username='sadfas',
+            password='axaxax',
+            verify='axaxax',
+            email='asdf@x.com'
+        ),
+        headers={'Cookie':'after_login=/asdf;'}
+    )
+    assert res.status_int == 302
+    assert res.location.split('/')[-1] == 'asdf'
+
+
+def test_signup_with_after_login_cookie_delete_cookie(testapp):
+    res = testapp.post(
+        '/signup',
+        dict(
+            username='sadfas',
+            password='axaxax',
+            verify='axaxax',
+            email='asdf@x.com'
+        ),
+        headers={'Cookie':'after_login=/asdf;'}
+    )
+
+    cookie_deleted = False
+    for cookie in res.headers.getall('Set-Cookie'):
+        cookie_name = cookie.split(';')[0].split('=')[0]
+        cookie_val = cookie.split(';')[0].split('=')[1]
+        if cookie_name == 'after_login':
+            assert cookie_val == ''
+            cookie_deleted = True
+
+    assert cookie_deleted

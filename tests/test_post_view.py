@@ -7,7 +7,9 @@ from webtest import AppError
 from bs4 import BeautifulSoup
 
 import views_base
-from views_base import testapp, fake_user, mock_BlogPost, mock_comments
+from views_base import (
+    testapp, fake_user, mock_BlogPost, mock_comments, mock_Like
+)
 from blog import auth
 
 
@@ -34,18 +36,18 @@ def test_get_post_returns_404_if_post_does_not_exist(testapp):
 
 
 def test_get_post_returns_200_if_post_exists(
-        testapp, mock_BlogPost, mock_comments
+        testapp, mock_BlogPost, mock_comments, mock_Like
     ):
     assert testapp.get('/post/%i' % mock_BlogPost.key.id()).status_int == 200
 
 
 @pytest.fixture
-def soup(testapp, mock_BlogPost, mock_comments):
+def soup(testapp, mock_BlogPost, mock_comments, mock_Like):
     response = testapp.get('/post/%i' % mock_BlogPost.key.id())
     return BeautifulSoup(response.normal_body, 'html.parser')
 
 @pytest.fixture
-def soup_logged_in(testapp, fake_user, mock_BlogPost, mock_comments):
+def soup_logged_in(testapp, fake_user, mock_BlogPost, mock_comments, mock_Like):
     response = views_base.logged_in_get_post_page(
         testapp,
         mock_BlogPost.key.id(),
@@ -201,7 +203,7 @@ def test_get_comment_with_nonexistant_id_returns_404(
     assert '404' in str(excinfo.value)
 
 
-def test_get_comment_with_other_user_returns_401(
+def test_get_comment_with_other_user_returns_403(
     testapp, fake_user, mock_BlogPost, mocker
 ):
     user_id = fake_user.key.id()
@@ -210,7 +212,7 @@ def test_get_comment_with_other_user_returns_401(
     mock_Comment(mocker, 'A comment', 123643)
     with pytest.raises(AppError) as excinfo:
         response = logged_in_get_comment_page(testapp, user_id, post_id, 1)
-    assert '401' in str(excinfo.value)
+    assert '403' in str(excinfo.value)
 
 
 def test_get_comment_with_id_show_comment_in_textarea(
@@ -228,7 +230,7 @@ def test_get_comment_with_id_show_comment_in_textarea(
     assert soup.textarea.text == comment
 
 
-def test_post_comment_with_id_with_other_user_returns_401(
+def test_post_comment_with_id_with_other_user_returns_403(
     testapp, fake_user, mock_BlogPost, mocker
 ):
     user_id = fake_user.key.id()
@@ -237,7 +239,7 @@ def test_post_comment_with_id_with_other_user_returns_401(
     mock_Comment(mocker, 'A comment', 123643)
     with pytest.raises(AppError) as excinfo:
         response = logged_in_post_comment(testapp, user_id, post_id, 'asdf', 1)
-    assert '401' in str(excinfo.value)
+    assert '403' in str(excinfo.value)
 
 
 def test_post_comment_calls_put(testapp, fake_user, mock_BlogPost, mocker):
@@ -257,7 +259,7 @@ def test_comment_with_different_user_has_no_delete_button(
 
 
 def test_comment_with_same_user_has_delete_button(
-    testapp, fake_user, mock_BlogPost, mocker
+    testapp, fake_user, mock_BlogPost, mocker, mock_Like
 ):
     user_id = fake_user.key.id()
     post_id = mock_BlogPost.key.id()
@@ -277,7 +279,7 @@ def logged_in_post_delete(testapp, post_id, comment_id, user_id):
     )
 
 
-def test_post_to_delete_with_other_user_returns_401(
+def test_post_to_delete_with_other_user_returns_403(
     testapp, fake_user, mock_BlogPost, mocker
 ):
     user_id = fake_user.key.id()
@@ -287,7 +289,7 @@ def test_post_to_delete_with_other_user_returns_401(
 
     with pytest.raises(AppError) as excinfo:
         logged_in_post_delete(testapp, post_id, comment_id, user_id)
-    assert '401' in str(excinfo.value)
+    assert '403' in str(excinfo.value)
 
 
 def test_post_to_delete_with_other_user_doesnt_call_delete(

@@ -61,3 +61,12 @@ class Comment(ndb.Model):
     @property
     def formatted_date(self):
         return self.datetime.strftime('%-d-%b-%Y')
+
+
+class Like(ndb.Model):
+    user_id = ndb.IntegerProperty(required=True)
+
+    @classmethod
+    def get_by_blog_post_id(cls, blog_post_id):
+        blog_post = BlogPost.get_by_id(blog_post_id, parent=blog_key())
+        return cls.query(ancestor=blog_post.key).fetch()

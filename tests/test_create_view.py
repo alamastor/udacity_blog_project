@@ -45,10 +45,10 @@ def test_create_view_has_correct_form_fields(get_create_logged_in):
     assert form.find('textarea', {'name': 'content'}) is not None
 
 
-def test_post_by_logged_out_user_raises_401(testapp):
-    with pytest.raises(AppError) as excinfo:
-        testapp.post('/post')
-    assert '401' in str(excinfo.value)
+def test_post_by_logged_out_user_redirects_to_login(testapp):
+    response = testapp.post('/post')
+    assert response.status_int == 302
+    assert response.location.split('/')[-1] == 'login'
 
 
 def test_post_with_invalid_title_shows_error(testapp, fake_user):

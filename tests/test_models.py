@@ -2,7 +2,7 @@ import pytest
 
 from datetime import datetime
 
-from blog.models import blog_key, BlogPost, User, Comment
+from blog.models import blog_key, BlogPost, User, Comment, Like
 
 
 @pytest.fixture
@@ -108,3 +108,24 @@ def test_Comment_get_by_id_and_post_id(testdb):
     assert Comment.get_by_id_and_post_key(
         comment.key.id(), post.full_key
     ) == comment
+
+
+def test_Like_get_by_post_id(testdb):
+    blog_post = BlogPost(
+        parent=blog_key(),
+        title='asd',
+        content='asdf',
+        datetime=datetime.now(),
+        user_id=1
+    )
+    blog_post.put()
+
+    like_1 = Like(parent=blog_post.key, user_id=1)
+    like_1.put()
+    like_2 = Like(parent=blog_post.key, user_id=2)
+    like_2.put()
+
+    result = Like.get_by_blog_post_id(blog_post.key.id())
+    assert len(result) == 2
+    assert like_1 in result
+    assert like_2 in result

@@ -51,7 +51,7 @@ def mock_BlogPost(mocker, user_id=2):
 
 def logged_in_get(testapp, url, user_id):
     return testapp.get(url, headers={
-        'Cookie': 'sess=%s|%s; Path=/' % (
+        'Cookie': 'sess=%s|%s;' % (
             user_id, auth.make_secure_val(user_id)
         )
     })
@@ -84,3 +84,12 @@ def mock_comments(mocker):
         Comment('B comment', datetime(2015, 1, 1), '1-Jan-2015', 'B user'),
         Comment('C comment', datetime(2014, 1, 2), '2-Jan-2014', 'C user'),
     ]
+
+
+@pytest.fixture
+def mock_Like(mocker):
+    mocked_Like = mocker.patch('blog.views.Like', autospec=True)
+    mock_like = mocker.Mock()
+    type(mock_like).put = mocker.Mock()
+    mocked_Like.return_value = mock_like
+    return mocked_Like

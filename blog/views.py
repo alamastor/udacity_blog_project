@@ -3,7 +3,7 @@ from datetime import datetime
 import re
 
 from handlers import Handler, AuthHandler
-from models import blog_key, BlogPost, User, Comment
+from models import blog_key, BlogPost, User, Comment, Like
 import auth
 
 
@@ -20,32 +20,44 @@ class BlogPostPage(Handler, AuthHandler):
     CONTENT_RE = re.compile(r'^[\S\s]{4,}')
 
     def get(self, post_id):
-        post_id = int(post_id)
-        post = BlogPost.get_by_id(post_id, parent=blog_key())
+        self.post_id = int(post_id)
+        self.render_blog_post()
+
+    def render_blog_post(self):
+        post = BlogPost.get_by_id(self.post_id, parent=blog_key())
 
         if post:
             comments = Comment.get_by_post_key(post.key)
             comments.sort(key=lambda x: x.datetime)
             self.render(
-                'post.html', user=self.user, post=post, comments=comments
+                'post.html',
+                user=self.user,
+                post=post,
+                comments=comments,
+                display_likes=self.display_likes,
+                likes=self.likes
             )
         else:
             self.abort(404)
 
     def post(self, post_id=None):
-        if not self.user:
-            self.abort(401)
+        if self.user:
+            if post_id:
+                self.post_id = int(post_id)
+            else:
+                self.post_id = None
 
-        if post_id:
-            self.post_id = int(post_id)
+            if self.request.get('delete') == 'delete':
+                self.delete()
+            elif self.request.get('like') == 'like':
+                self.like()
+            elif self.post_id:
+                self.update_blog_post()
+            else:
+                self.create_blog_post()
         else:
-            self.post_id = None
-
-        if self.request.get('delete') == 'delete':
-            self.delete()
-        else:
-            self.create_or_update()
-
+            self.set_cookie('after_login', self.request.url)
+            self.redirect('/login')
 
     def get_post(self):
         if self.post_id:
@@ -53,81 +65,136 @@ class BlogPostPage(Handler, AuthHandler):
 
             if not post:
                 self.abort(404)
-            if post.user_id != self.user.key.id():
-                self.abort(401)
         else:
             post = None
 
         return post
 
-
     def delete(self):
-        self.get_post().key.delete()
+        post = self.get_post()
+        if post.user_id != self.user.key.id():
+            self.abort(403)
+
+        post.key.delete()
         self.redirect('/')
 
-
-    def create_or_update(self):
-        post = self.get_post()
+    def create_blog_post(self):
         title = self.request.get('title')
         content = self.request.get('content')
 
+        errors = self.blog_post_validation_errors(title, content)
+        if errors:
+            self.render_post_validation_errors(title, content, errors)
+        else:
+            post = BlogPost(
+                parent=blog_key(),
+                title=title,
+                content=content,
+                datetime=datetime.now(),
+                user_id=self.user.key.id()
+            )
+            post.put()
+
+            self.redirect('/post/%i' % post.key.id())
+
+    def update_blog_post(self):
+        post = self.get_post()
+        if post.user_id != self.user.key.id():
+            self.abort(403)
+
+        title = self.request.get('title')
+        content = self.request.get('content')
+
+        errors = self.blog_post_validation_errors(title, content)
+        if errors:
+            self.render_post_validation_errors(title, content, errors)
+        else:
+            post.title = title
+            post.content = content
+            post.put()
+
+            self.redirect('/post/%i' % post.key.id())
+
+    def blog_post_validation_errors(self, title, content):
         errors = []
         if not self.TITLE_RE.match(title):
             errors.append('Invalid title')
         if not self.CONTENT_RE.match(content):
             errors.append('Invalid content')
+        return errors
 
-        if not errors:
-            if post:
-                post.title = title
-                post.content = content
-            else:
-                post = BlogPost(
-                    parent=blog_key(),
-                    title=title,
-                    content=content,
-                    datetime=datetime.now(),
-                    user_id=self.user.key.id()
-                )
-            post.put()
+    def render_post_validation_errors(self, title, content, errors):
+        self.render(
+            'blog_post_create_edit.html',
+            title=title,
+            content=content,
+            errors=errors
+        )
 
-            self.redirect('/post/%i' % post.key.id())
+    @property
+    def is_blog_post_creator(self):
+        if self.user and self.user.key.id() == self.get_post().user_id:
+            return True
         else:
-            self.render(
-                'blog_post_create_edit.html',
-                title=title,
-                content=content,
-                errors=errors
-            )
+            return False
+
+    def like(self):
+        if self.is_blog_post_creator:
+            self.abort(403)
+
+        Like(parent=self.get_post().key, user_id=self.user.key.id()).put()
+
+        self.render_blog_post()
+
+
+    @property
+    def already_liked_blog_post(self):
+        likes = Like.get_by_blog_post_id(self.post_id)
+        if self.user and self.user.key.id() in [l.user_id for l in likes]:
+            return True
+        else:
+            return False
+
+    @property
+    def display_likes(self):
+        if self.is_blog_post_creator or self.already_liked_blog_post:
+            return True
+        else:
+            return False
+
+    @property
+    def likes(self):
+        return len(Like.get_by_blog_post_id(self.post_id))
+
 
 class CreateOrEditBlogPostPage(Handler, AuthHandler):
 
     def get(self, post_id=None):
-        if not self.user:
-            self.redirect('/login')
+        if self.user:
+            if post_id:
+                post_id = int(post_id)
+                post = BlogPost.get_by_id(post_id, parent=blog_key())
+                if not post:
+                    self.abort(404)
 
-        if post_id:
-            post_id = int(post_id)
-            post = BlogPost.get_by_id(post_id, parent=blog_key())
-            if not post:
-                self.abort(404)
+                if post.user_id != self.user.key.id():
+                    self.abort(403)
 
-            if not self.user or post.user_id != self.user.key.id():
-                self.abort(401)
+                title = post.title
+                content = post.content
+            else:
+                post = None
+                title = ''
+                content = ''
 
-            title = post.title
-            content = post.content
+            self.render(
+                'blog_post_create_edit.html',
+                post=post,
+                title=title,
+                content=content
+            )
         else:
-            post = None
-            title = ''
-            content = ''
-
-        self.render(
-            'blog_post_create_edit.html',
-            post=post,
-            title=title,
-            content=content
-        )
+            self.redirect('/login')
 
 
 class LoginPage(Handler, AuthHandler):
@@ -149,7 +216,12 @@ class LoginPage(Handler, AuthHandler):
 
         if valid_user:
             self.log_user_in(user.key.id())
-            self.redirect('/')
+            redirect_cookie = self.request.cookies.get('after_login')
+            if redirect_cookie:
+                self.response.delete_cookie('after_login')
+                self.redirect(str(redirect_cookie))
+            else:
+                self.redirect('/')
         else:
             self.render('login.html', error=True)
 
@@ -185,7 +257,12 @@ class SignUpPage(Handler, AuthHandler):
         else:
             user_id = auth.create_user(username, password, email)
             self.log_user_in(user_id)
-            self.redirect('/')
+            redirect_cookie = self.request.cookies.get('after_login')
+            if redirect_cookie:
+                self.response.delete_cookie('after_login')
+                self.redirect(str(redirect_cookie))
+            else:
+                self.redirect('/')
 
 
 class CommentPage(Handler, AuthHandler):
@@ -270,7 +347,7 @@ class CommentPage(Handler, AuthHandler):
             self.abort(404)
 
         if comment and comment.user_id != self.user.key.id():
-            self.abort(401)
+            self.abort(403)
 
         self._comment = comment
 
@@ -283,7 +360,7 @@ class CommentPage(Handler, AuthHandler):
         )
 
         if comment.user_id != self.user.key.id():
-            self.abort(401)
+            self.abort(403)
 
         comment.key.delete()
 

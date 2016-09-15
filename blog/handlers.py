@@ -26,6 +26,9 @@ class Handler(webapp2.RequestHandler):
     def render(self, template, **kwargs):
         self.write(self.render_str(template, **kwargs))
 
+    def set_cookie(self, name, val):
+        self.response.set_cookie(name, val, path='/')
+
 
 class AuthHandler(webapp2.RequestHandler):
 
@@ -34,6 +37,7 @@ class AuthHandler(webapp2.RequestHandler):
         user_id = self.read_secure_cookie('sess')
         self.user = user_id and User.get_by_id(int(user_id))
 
+    # TODO: Make more general
     def set_secure_cookie(self, name, val):
         self.response.set_cookie(
             'sess',

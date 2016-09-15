@@ -13,15 +13,18 @@ class Page(object):
     def visit_page(self):
         self.browser.get(self.url)
 
+    def assert_open(self):
+        current_url = self.browser.current_url
+        if current_url[-1] == '/':
+            current_url = current_url[:-1]
+
+        assert current_url == self.url
+
 
 class HomePage(Page):
 
     def __init__(self, browser):
         super(HomePage, self).__init__(browser, base.MAIN_PAGE_URL)
-
-    def assert_open(self):
-        header_text = self.browser.find_element_by_tag_name('h1').text
-        assert header_text == 'Bloggity!'
 
     @property
     def blog_posts(self):
@@ -37,6 +40,21 @@ class BlogPost(object):
     @property
     def title(self):
         return self.element.find_element_by_class_name('post__title').text
+
+    @property
+    def post_id(self):
+        return int(self.link.split('/')[-1])
+
+    @property
+    def link(self):
+        header = self.element.find_element_by_class_name('post__title')
+        link = header.find_element_by_tag_name('a')
+        return str(link.get_attribute('href'))
+
+    def click(self):
+        header = self.element.find_element_by_class_name('post__title')
+        link = header.find_element_by_tag_name('a')
+        link.click()
 
 
 class SignUpPage(Page):
@@ -117,6 +135,10 @@ class BlogPostPage(Page):
         )
 
     @property
+    def home_link(self):
+        return self.browser.find_element_by_class_name('home-link')
+
+    @property
     def title(self):
         return self.browser.find_element_by_class_name('post__title').text
 
@@ -160,6 +182,14 @@ class BlogPostPage(Page):
         comment_form = self.browser.find_element_by_class_name('comment-form')
         comment_form.find_element_by_name('comment').send_keys(comment)
         comment_form.find_element_by_class_name('comment-form__submit').click()
+
+    @property
+    def likes(self):
+        ele = self.browser.find_element_by_class_name('post__likes')
+        return int(ele.text.split()[0])
+
+    def like(self):
+        self.browser.find_element_by_class_name('post__like').click()
 
 
 class Comment(object):

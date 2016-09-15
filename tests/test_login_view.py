@@ -76,10 +76,15 @@ def test_login_shows_error_on_missing_password_post(testapp):
     assert 'Invalid' in body
 
 
-def post_user_to_login(testapp, user):
-    return testapp.post('/login', dict(
-        username=user.username, password=user.password
-    ))
+def post_user_to_login(testapp, user, cookie_dict={}):
+    cookies = ''
+    for key, val in cookie_dict.iteritems():
+        cookies += '%s=%s;' % (key, val)
+    return testapp.post(
+        '/login',
+        dict(username=user.username, password=user.password),
+        headers={'Cookie': cookies}
+    )
 
 
 def test_login_with_correct_credentials_redirects(testapp, mock_valid_User):
@@ -117,3 +122,27 @@ def test_logged_in_user_has_username_displayed_in_nav(testapp, fake_user):
     })
     soup = BeautifulSoup(response.body, 'html.parser')
     assert fake_user.username in soup.nav.text
+
+
+def test_login_with_after_login_cookie_redirects_correctly(
+    testapp, mock_valid_User
+):
+    res = post_user_to_login(testapp, mock_valid_User, {'after_login': '/asdf'})
+    assert res.status_int == 302
+    assert res.location.split('/')[-1] == 'asdf'
+
+
+def test_login_with_after_login_cookie_deletes_cookie(
+    testapp, mock_valid_User
+):
+    res = post_user_to_login(testapp, mock_valid_User, {'after_login': '/asdf'})
+
+    cookie_deleted = False
+    for cookie in res.headers.getall('Set-Cookie'):
+        cookie_name = cookie.split(';')[0].split('=')[0]
+        cookie_val = cookie.split(';')[0].split('=')[1]
+        if cookie_name == 'after_login':
+            assert cookie_val == ''
+            cookie_deleted = True
+
+    assert cookie_deleted
