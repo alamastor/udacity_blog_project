@@ -252,3 +252,11 @@ def test_valid_post_delete_redirects_to_home_page(testapp, fake_user, mocker):
     assert response.status_int == 302
     # Test it's the home page.
     assert response.location == testapp.get('/').request.url
+
+
+def test_redirect_from_create_set_correctly_sets_cookie(testapp):
+    res = testapp.get(
+        '/post/create'
+    )
+
+    assert views_base.cookie_set(res, 'after_login', '"http://localhost/post/create"')

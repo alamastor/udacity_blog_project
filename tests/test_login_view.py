@@ -130,6 +130,16 @@ def test_get_with_referer_sets_after_login_cookie(testapp):
     assert views_base.cookie_set(res, 'after_login', '/asdf')
 
 
+def test_get_with_after_login_cookie_set_does_not_overwrite(testapp):
+    testapp.set_cookie('after_login', '/zxcv')
+    res = testapp.get(
+        '/login',
+        extra_environ={'HTTP_REFERER': '/asdf'}
+    )
+    assert testapp.cookies['after_login'] == '"/zxcv"'
+    assert not views_base.cookie_set(res, 'after_login', '/zxcv')
+
+
 def test_login_with_after_login_cookie_redirects_correctly(
     testapp, mock_valid_User
 ):

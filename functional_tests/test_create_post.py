@@ -3,13 +3,12 @@ from datetime import date, datetime
 import base
 from base import run_app, browser
 from blog import auth
-from pages import LoginPage, CreatePage
+from pages import HomePage, LoginPage, CreatePage, BlogPostPage
 
 
 def test_create_post(run_app, browser):
-    create_page = CreatePage(browser)
-    # User visits create post page.
-    create_page.visit_page()
+    # User visits home page and clicks link to create post
+    HomePage(browser).visit_page().create_blog_post_link.click()
 
     # User is not logged in and gets redirected to login page.
     login_page = LoginPage(browser)
@@ -18,8 +17,8 @@ def test_create_post(run_app, browser):
     test_user = base.create_test_user()
     login_page.submit_form(test_user.username, test_user.password)
 
-    # User visit create post page again.
-    create_page.visit_page()
+    # User is redirected to create page.
+    create_page = CreatePage(browser)
 
     # User enters post with missing title and sees error.
     create_page.submit_form('', 'asdfasdfdsfasdfasdf')
@@ -39,14 +38,9 @@ def test_create_post(run_app, browser):
     )
     create_page.submit_form(title, content)
     post_date = date.today()
-    post_date_on_page = datetime.strptime(
-        browser.find_element_by_class_name('post__date').text,
-        '%d-%b-%Y'
-    ).date()
-    assert post_date == post_date_on_page
-    assert browser.find_element_by_class_name('post__title').text == title
-    assert datetime.strptime(
-        browser.find_element_by_class_name('post__date').text, '%d-%b-%Y'
-    ).date() == post_date
-    post_content = browser.find_element_by_class_name('post__content').text
-    assert  post_content.encode('ascii') == content.replace('\n', ' <br>')
+
+    post_id = int(browser.current_url.split('/')[-1])
+    blog_post_page = BlogPostPage(browser, post_id)
+    assert blog_post_page.title == title
+    assert blog_post_page.date == post_date
+    assert blog_post_page.content == content.replace('\n', ' <br>')

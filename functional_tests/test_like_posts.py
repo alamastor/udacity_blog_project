@@ -23,11 +23,11 @@ def test_like_posts(run_app, browser):
     blog_post_page.like()
 
     login_page = LoginPage(browser)
-    login_page.assert_open()
+    assert login_page.is_open()
 
     # User logs in and is redirected back to the post.
     login_page.submit_form(test_user.username, test_user.password)
-    blog_post_page.assert_open()
+    assert blog_post_page.is_open()
 
     # Like button is no longer visible, as user can't like own post.
     with pytest.raises(NoSuchElementException) as e:
@@ -40,7 +40,7 @@ def test_like_posts(run_app, browser):
     post_id = home_page.blog_posts[1].post_id
     home_page.blog_posts[1].click()
     blog_post_page = BlogPostPage(browser, post_id)
-    blog_post_page.assert_open()
+    assert blog_post_page.is_open()
 
     # User clicks like.
     blog_post_page.like()

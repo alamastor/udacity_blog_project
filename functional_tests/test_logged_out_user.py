@@ -5,6 +5,7 @@ import pytest
 
 import base
 from base import run_app, browser
+from pages import HomePage, BlogPostPage
 
 
 @pytest.fixture
@@ -15,22 +16,20 @@ def add_posts():
 
 def test_user_can_view_posts(run_app, browser, add_posts):
     # User visits main page.
-    browser.get(base.MAIN_PAGE_URL)
+    home_page = HomePage(browser).visit_page()
 
     # User can see header and and mulitple posts.
-    header_text = browser.find_element_by_tag_name('h1').text
-    assert header_text == 'Bloggity!'
+    assert home_page.header.text == 'Bloggity!'
 
-    post_titles = browser.find_elements_by_class_name('post__title')
-    assert post_titles[0].text == 'Post 2'
-    assert post_titles[1].text == 'Post 1'
+    assert home_page.blog_posts[0].title == 'Post 2'
+    assert home_page.blog_posts[1].title == 'Post 1'
 
-    post_content = browser.find_elements_by_class_name('post__content')
-    assert len(post_content) == 2
+    assert len(home_page.blog_posts) == 2
 
     # User visits an individual blog post and can see content.
-    post_titles[0].find_element_by_tag_name('a').click()
-    header_text = browser.find_element_by_tag_name('h1').text
-    post_time = browser.find_element_by_class_name('post__date').text
-    assert header_text == 'Post 2'
-    assert post_time == datetime.now().strftime('%-d-%b-%Y')
+    home_page.blog_posts[0].click()
+
+    post_id = int(browser.current_url.split('/')[-1])
+    blog_post_page = BlogPostPage(browser, post_id)
+    assert blog_post_page.title == 'Post 2'
+    assert blog_post_page.date == datetime.now().date()

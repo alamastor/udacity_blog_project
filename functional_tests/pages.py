@@ -12,13 +12,14 @@ class Page(object):
 
     def visit_page(self):
         self.browser.get(self.url)
+        return self
 
-    def assert_open(self):
+    def is_open(self):
         current_url = self.browser.current_url
         if current_url[-1] == '/':
             current_url = current_url[:-1]
 
-        assert current_url == self.url
+        return current_url == self.url
 
     @property
     def login_button(self):
@@ -34,6 +35,14 @@ class HomePage(Page):
     def blog_posts(self):
         post_eles = self.browser.find_elements_by_class_name('post')
         return [BlogPost(x) for x in post_eles]
+
+    @property
+    def create_blog_post_link(self):
+        return self.browser.find_element_by_class_name('create-link')
+
+    @property
+    def header(self):
+        return self.browser.find_element_by_tag_name('h1')
 
 
 class BlogPost(object):
@@ -145,6 +154,11 @@ class BlogPostPage(Page):
     @property
     def title(self):
         return self.browser.find_element_by_class_name('post__title').text
+
+    @property
+    def date(self):
+        ele = self.browser.find_element_by_class_name('post__date')
+        return datetime.strptime(ele.text, '%d-%b-%Y').date()
 
     @property
     def content(self):

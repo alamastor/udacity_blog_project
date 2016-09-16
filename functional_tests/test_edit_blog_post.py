@@ -56,7 +56,7 @@ def test_blog_post(run_app, browser):
 
     # User is redirected to home page, and post is gone.
     home_page = HomePage(browser)
-    home_page.assert_open()
+    assert home_page.is_open()
 
     assert home_page.blog_posts[0].title == 'A Post'
     assert len(home_page.blog_posts) == 1
