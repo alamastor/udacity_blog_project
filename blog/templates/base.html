@@ -9,6 +9,9 @@
     <a class="home-link" href="/">Bloggity!</a>
     {% if user %}
       Welcome {{ user.username }}
+      <form method="post" action="/logout">
+        <button class="logout-button">Logout</button>
+      </form>
     {% else %}
       <a class="login-button" href="/login">Login</a>
     {% endif %}

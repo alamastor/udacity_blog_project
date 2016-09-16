@@ -25,6 +25,10 @@ class Page(object):
     def login_button(self):
         return self.browser.find_element_by_class_name('login-button')
 
+    @property
+    def logout_button(self):
+        return self.browser.find_element_by_class_name('logout-button')
+
 
 class HomePage(Page):
 

@@ -2,7 +2,7 @@ import pytest
 
 import base
 from base import run_app, browser
-from pages import LoginPage
+from pages import LoginPage, HomePage
 
 
 @pytest.fixture
@@ -24,9 +24,14 @@ def test_user_login(run_app, browser, test_user):
     login_page.submit_form(test_user.username, test_user.password)
 
     # User is redirected to home page
-    browser.implicitly_wait(5)
-    header_text = browser.find_element_by_tag_name('h1').text
-    assert header_text == 'Bloggity!'
+    home_page = HomePage(browser)
+    assert home_page.header.text == 'Bloggity!'
 
     # User is shown as logged in.
     assert test_user.username in browser.find_element_by_tag_name('nav').text
+
+    # User logs out.
+    home_page.logout_button.click()
+
+    # User is logged out.
+    assert home_page.login_button

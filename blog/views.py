@@ -1,6 +1,7 @@
 from datetime import datetime
-
 import re
+
+import webapp2
 
 from handlers import Handler, AuthHandler
 from models import blog_key, BlogPost, User, Comment, Like
@@ -367,3 +368,13 @@ class CommentPage(Handler, AuthHandler):
         comment.key.delete()
 
         self.redirect('/post/%i' % self.post_id)
+
+
+class LogoutHandler(webapp2.RequestHandler):
+
+    def post(self):
+        self.response.delete_cookie('sess')
+        if self.request.referer:
+            self.redirect(self.request.referer)
+        else:
+            self.redirect('/')

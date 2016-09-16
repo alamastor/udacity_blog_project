@@ -2,7 +2,7 @@ import webapp2
 
 from views import (
     HomePage, BlogPostPage, LoginPage, SignUpPage, CommentPage,
-    CreateOrEditBlogPostPage
+    CreateOrEditBlogPostPage, LogoutHandler
 )
 
 ROUTER = [
@@ -15,6 +15,7 @@ ROUTER = [
     ('/post/(\d+)/comment/(\d+)', CommentPage),
     ('/login', LoginPage),
     ('/signup', SignUpPage),
+    ('/logout', LogoutHandler),
 ]
 
 app = webapp2.WSGIApplication(ROUTER)
