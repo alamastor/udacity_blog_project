@@ -93,3 +93,13 @@ def mock_Like(mocker):
     type(mock_like).put = mocker.Mock()
     mocked_Like.return_value = mock_like
     return mocked_Like
+
+
+def cookie_set(response, cookie_name, cookie_val):
+    for cookie in response.headers.getall('Set-Cookie'):
+        name = cookie.split(';')[0].split('=')[0]
+        val = cookie.split(';')[0].split('=')[1]
+        if name == cookie_name:
+            return val == cookie_val
+    return False  # correct cookie not found
+

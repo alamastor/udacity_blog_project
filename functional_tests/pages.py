@@ -20,6 +20,10 @@ class Page(object):
 
         assert current_url == self.url
 
+    @property
+    def login_button(self):
+        return self.browser.find_element_by_class_name('login-button')
+
 
 class HomePage(Page):
 

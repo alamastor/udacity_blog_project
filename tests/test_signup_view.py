@@ -2,6 +2,7 @@ import pytest
 from bs4 import BeautifulSoup
 import jinja2
 
+import views_base
 from views_base import testapp
 
 
@@ -130,12 +131,4 @@ def test_signup_with_after_login_cookie_delete_cookie(testapp):
         headers={'Cookie':'after_login=/asdf;'}
     )
 
-    cookie_deleted = False
-    for cookie in res.headers.getall('Set-Cookie'):
-        cookie_name = cookie.split(';')[0].split('=')[0]
-        cookie_val = cookie.split(';')[0].split('=')[1]
-        if cookie_name == 'after_login':
-            assert cookie_val == ''
-            cookie_deleted = True
-
-    assert cookie_deleted
+    assert views_base.cookie_set(res, 'after_login', '')

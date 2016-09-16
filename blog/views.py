@@ -56,7 +56,6 @@ class BlogPostPage(Handler, AuthHandler):
             else:
                 self.create_blog_post()
         else:
-            self.set_cookie('after_login', self.request.url)
             self.redirect('/login')
 
     def get_post(self):
@@ -200,6 +199,8 @@ class CreateOrEditBlogPostPage(Handler, AuthHandler):
 class LoginPage(Handler, AuthHandler):
 
     def get(self):
+        if self.request.referer:
+            self.set_cookie('after_login', self.request.referer)
         self.render('login.html')
 
     def post(self):

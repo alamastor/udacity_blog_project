@@ -42,13 +42,12 @@ def test_commenting_page(run_app, browser):
         browser.find_element_by_class_name('add-comment')
 
     # User logs in.
+    post_page.login_button.click()
     login_page = LoginPage(browser)
-    login_page.visit_page()
     test_user = base.create_test_user()
     login_page.submit_form(test_user.username, test_user.password)
 
-    # User post a comment.
-    post_page.visit_page()
+    # User is redirected to post and writes a comment.
     post_page.write_comment('A mediocre comment')
 
     # The comment is now visible on the page.

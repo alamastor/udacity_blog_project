@@ -11,6 +11,8 @@
     <a class="home-link" href="/">Bloggity!</a>
     {% if user %}
       Welcome {{ user.username }}
+    {% else %}
+      <a class="login-button" href="/login">Login</a>
     {% endif %}
   </nav>
   {% block body %}

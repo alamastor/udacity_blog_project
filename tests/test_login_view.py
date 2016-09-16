@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 
 from blog.models import BlogPost, User
 from blog import auth
+import views_base
 from views_base import testapp, fake_user
 
 
@@ -124,6 +125,11 @@ def test_logged_in_user_has_username_displayed_in_nav(testapp, fake_user):
     assert fake_user.username in soup.nav.text
 
 
+def test_get_with_referer_sets_after_login_cookie(testapp):
+    res = testapp.get('/login', extra_environ={'HTTP_REFERER': '/asdf'})
+    assert views_base.cookie_set(res, 'after_login', '/asdf')
+
+
 def test_login_with_after_login_cookie_redirects_correctly(
     testapp, mock_valid_User
 ):
@@ -137,12 +143,4 @@ def test_login_with_after_login_cookie_deletes_cookie(
 ):
     res = post_user_to_login(testapp, mock_valid_User, {'after_login': '/asdf'})
 
-    cookie_deleted = False
-    for cookie in res.headers.getall('Set-Cookie'):
-        cookie_name = cookie.split(';')[0].split('=')[0]
-        cookie_val = cookie.split(';')[0].split('=')[1]
-        if cookie_name == 'after_login':
-            assert cookie_val == ''
-            cookie_deleted = True
-
-    assert cookie_deleted
+    assert views_base.cookie_set(res, 'after_login', '')
