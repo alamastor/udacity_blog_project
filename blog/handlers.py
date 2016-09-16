@@ -29,6 +29,10 @@ class Handler(webapp2.RequestHandler):
     def set_cookie(self, name, val):
         self.response.set_cookie(name, val, path='/')
 
+    def redirect_to_login(self):
+        self.set_cookie('after_login', self.request.url)
+        self.redirect('/login')
+
 
 class AuthHandler(webapp2.RequestHandler):
 

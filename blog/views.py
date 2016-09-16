@@ -193,13 +193,14 @@ class CreateOrEditBlogPostPage(Handler, AuthHandler):
                 content=content
             )
         else:
-            self.redirect('/login')
+            self.redirect_to_login()
 
 
 class LoginPage(Handler, AuthHandler):
 
     def get(self):
-        if self.request.referer:
+        redirect_cookie = self.request.cookies.get('after_login')
+        if not redirect_cookie and self.request.referer:
             self.set_cookie('after_login', self.request.referer)
         self.render('login.html')
 
