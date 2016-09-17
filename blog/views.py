@@ -11,9 +11,19 @@ import auth
 class HomePage(Handler, AuthHandler):
 
     def get(self):
-        posts = BlogPost.query(ancestor=blog_key()).fetch(10)
-        posts.sort(key=lambda p: p.datetime, reverse=True)
-        self.render('home_page.html', user=self.user, posts=posts)
+        page = int(self.request.get('page', 1))
+        q = BlogPost.query(ancestor=blog_key())
+        q.order(-BlogPost.datetime)
+        for __ in range(page):
+            posts = q.fetch(10)
+        show_next_page = q.iter().has_next()
+        self.render(
+            'home_page.html',
+            user=self.user,
+            posts=posts,
+            page=page,
+            show_next_page=show_next_page,
+        )
 
 
 class BlogPostPage(Handler, AuthHandler):

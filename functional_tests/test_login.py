@@ -15,7 +15,7 @@ def test_user_login(run_app, browser, test_user):
     login_page = LoginPage(browser)
     login_page.visit_page()
 
-    # User logs trys to log in with invalid credentials.
+    # User trys to log in with invalid credentials.
     login_page.submit_form('fake', 'fake')
     # Error message is displayed.
     assert login_page.get_error_message() == 'Invalid login credentials.'
