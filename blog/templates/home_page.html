@@ -10,8 +10,6 @@
     </div>
   {% endfor %}
   {% if show_next_page %}
-    <form>
-      <button class="next-page__button" name="page" value="{{ page + 1 }}">Next</button>
-    </form>
+    <a class="next-page" href="/?cur={{ cur.urlsafe() }}">Next</a>
   {% endif %}
 {% endblock %}

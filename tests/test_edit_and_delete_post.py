@@ -250,8 +250,7 @@ def test_valid_post_delete_redirects_to_home_page(testapp, fake_user, mocker):
         {'delete': 'delete'}
     )
     assert response.status_int == 302
-    # Test it's the home page.
-    assert response.location == testapp.get('/').request.url
+    assert response.location == 'http://localhost/'
 
 
 def test_redirect_from_create_set_correctly_sets_cookie(testapp):

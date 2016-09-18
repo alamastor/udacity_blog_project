@@ -2,6 +2,7 @@ from datetime import datetime
 import re
 
 import webapp2
+from google.appengine.datastore.datastore_query import Cursor
 
 from handlers import Handler, AuthHandler
 from models import blog_key, BlogPost, User, Comment, Like
@@ -11,18 +12,17 @@ import auth
 class HomePage(Handler, AuthHandler):
 
     def get(self):
-        page = int(self.request.get('page', 1))
+        cur = Cursor(urlsafe=self.request.get('cur'))
         q = BlogPost.query(ancestor=blog_key())
-        q.order(-BlogPost.datetime)
-        for __ in range(page):
-            posts = q.fetch(10)
-        show_next_page = q.iter().has_next()
+        q = q.order(-BlogPost.datetime)
+
+        posts, next_cursor, more = q.fetch_page(10, start_cursor=cur)
         self.render(
             'home_page.html',
             user=self.user,
             posts=posts,
-            page=page,
-            show_next_page=show_next_page,
+            cur=next_cursor,
+            show_next_page=more,
         )
 
 
