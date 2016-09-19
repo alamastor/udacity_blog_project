@@ -19,6 +19,7 @@ def mock_Comment(mocker, comment, user_id, comment_id=0):
     key.id.return_value = comment_id
     mock_comment = mocker.Mock()
     type(mock_comment).comment = comment
+    type(mock_comment).paragraphs = comment.split('\n')
     type(mock_comment).user_id = user_id
     type(mock_comment).datetime = datetime.now()
     type(mock_comment).key = key
@@ -63,7 +64,7 @@ def comments(soup):
 
 def test_post_view_show_comments(comments):
     assert len(comments) == 3
-    assert comments[0].find('p', class_='comment__comment').text == 'A comment'
+    assert comments[0].find('p', class_='comment__comment').text.strip() == 'A comment'
 
 
 def test_comments_have_a_user_and_date(comments):

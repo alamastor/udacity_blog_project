@@ -55,13 +55,22 @@ def test_post_with_missmatching_passwords_displays_error(testapp):
 
 
 def test_post_with_invalid_email_displays_error(testapp):
-    assert 'Invalid email' in post_to_signup(
+    assert 'invalid email' in post_to_signup(
         testapp,
         username='sadfas',
         password='axaxax',
         verify='axaxax',
         email='asdfasd'
     ).normal_body
+
+
+def test_post_with_no_post_is_valid(testapp):
+    assert post_to_signup(
+        testapp,
+        username='sadfas',
+        password='axaxax',
+        verify='axaxax',
+    ).status_int == 200
 
 
 def test_invalid_post_keeps_username_and_email_in_form(testapp):

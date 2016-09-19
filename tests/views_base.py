@@ -41,6 +41,7 @@ def mock_BlogPost(mocker, user_id=2):
     key.id = mocker.Mock(return_value=1)
     type(mock_post).title = 'Post 1'
     type(mock_post).content = 'dfjals;dfjawpoefinasdni'
+    type(mock_post).paragraphs = ['dfjals;dfjawpoefinasdni']
     type(mock_post).datetime = datetime(2016, 8, 10)
     type(mock_post).key = key
     type(mock_post).user_id = user_id
@@ -76,13 +77,13 @@ def logged_in_post(testapp, url, user_id, post_dict={}):
 @pytest.fixture
 def mock_comments(mocker):
     Comment = namedtuple('Comment', [
-        'comment', 'datetime', 'formatted_date', 'username'
+        'comment', 'paragraphs', 'datetime', 'formatted_date', 'username'
     ])
     mocked_Comment = mocker.patch('blog.views.Comment', autospec=True)
     mocked_Comment.get_by_post_key.return_value = [
-        Comment('A comment', datetime(2014, 1, 1), '1-Jan-2014', 'A user'),
-        Comment('B comment', datetime(2015, 1, 1), '1-Jan-2015', 'B user'),
-        Comment('C comment', datetime(2014, 1, 2), '2-Jan-2014', 'C user'),
+        Comment('A comment', ['A comment'], datetime(2014, 1, 1), '1-Jan-2014', 'A user'),
+        Comment('B comment', ['B comment'], datetime(2015, 1, 1), '1-Jan-2015', 'B user'),
+        Comment('C comment', ['C comment'], datetime(2014, 1, 2), '2-Jan-2014', 'C user'),
     ]
 
 
