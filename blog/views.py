@@ -260,7 +260,7 @@ class SignUpPage(Handler, AuthHandler):
             errors.append('Invalid password')
         if password != verify:
             errors.append("Passwords didn't match")
-        if not self.EMAIL_RE.match(email):
+        if email and not self.EMAIL_RE.match(email):
             errors.append('Invalid email address')
 
         if errors:
