@@ -1,11 +1,14 @@
 {% extends "base.html" %}
 {% block body %}
-  <form method="post">
-    <input name="username">
-    <input name="password" type="password">
-    <input type="submit">
+  <form class="box-form" method="post">
+    <p><label for="username">Username</label></p>
+    <p><input name="username" type="text" id="username"></p>
+    <p><label for="password">Password</label></p>
+    <p><input name="password" type="password" id="password"></p>
+    <p><button>Submit</button></p>
+    {% if error %}
+      <p class="error">Invalid login credentials.</p>
+    {% endif %}
   </form>
-  {% if error %}
-    <p class="error">Invalid login credentials.</p>
-  {% endif %}
+  <h2 class="signup-link"><a href="/signup">Sign Up<a></h2>
 {% endblock %}

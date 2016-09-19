@@ -15,19 +15,25 @@
   {% endif %}
   <h1 class="post__title">{{ post.title }}</h1>
   <h3 class="post__date">{{ post.date_str }}</h3>
-  <p class="post__content">{{ post.formatted_content }}</p>
+  {% for para in post.paragraphs %}
+    <p class="post__content">{{ para }}</p>
+  {% endfor %}
   <h2>Comments</h2>
   {% for comment in comments %}
     <div class="comment">
       {% if user and user.key.id() == comment.user_id %}
         <a class="comment__edit" href="/post/{{ post.key.id() }}/comment/{{ comment.key.id() }}">Edit</a>
         <form method="post" action="/post/{{ post.key.id() }}/comment/{{ comment.key.id() }}">
-          <button class="delete" type="submit" name="delete" value="delete">
+          <button class="delete" type="submit" name="delete" value="delete">Delete</button>
         </form>
       {% endif %}
       <h3 class="comment__user">{{ comment.username }}</h3>
       <h4 class="comment__date">{{ comment.formatted_date }}</h4>
-      <p class="comment__comment">{{ comment.comment }}</p>
+      <p class="comment__comment">
+        {% for para in comment.paragraphs %}
+          {{para}}</br>
+        {% endfor %}
+      </p>
     </div>
   {% endfor %}
   {% if user %}

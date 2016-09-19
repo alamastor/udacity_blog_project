@@ -1,12 +1,14 @@
 {% extends "base.html" %}
 {% block body %}
-  <h1>Bloggity!</h1>
-  <a class="create-link" href="/post/create">Create a blog post</a>
+  <h2><a class="create-link" href="/post/create">Create a blog post</a></h2>
   {% for post in posts %}
     <div class="post">
       <h2 class="post__title"><a href="/post/{{ post.key.id() }}">{{ post.title }}</a></h2>
-      <h3 class="post__date">{{ post.date_str }}</h3>
-      <p class="post__content">{{ post.content }}</p>
+      <div class="post__subheader">
+        <h3 class="post__subheader--date">{{ post.date_str }}</h3>
+        <h3 class="post__subheader--name">by {{ post.username }}</h3>
+      </div>
+      <p class="post__content">{{ post.content | truncate(400) }}</p>
     </div>
   {% endfor %}
   {% if show_next_page %}

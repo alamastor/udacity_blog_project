@@ -1,17 +1,18 @@
 
 {% extends "base.html" %}
 {% block body %}
-  <form method="post">
-    <input name="username" value="{{ username }}">
-    <input name="password" type="password">
-    <input name="verify" type="password">
-    <input name="email" value="{{ email }}">
+  <form class="box-form" method="post">
+    <p><label for="username">Username</label></p>
+    <p><input name="username" value="{{ username }}" type="text"></p>
+    <p><label for="password">Password</label></p>
+    <p><input name="password" type="password"></p>
+    <p><label for="verify">Verify Password</label></p>
+    <p><input name="verify" type="password"></p>
+    <p><label for="email">Email</label></p>
+    <p><input name="email" value="{{ email }}" type="email"></p>
+    <p><button type="submit">Submit</button></p>
     {% for error in errors %}
       <div class="error">{{ error }}</div>
     {% endfor %}
-    <input type="submit">
   </form>
-  {% if error %}
-    <p class="error">Invalid login credentials.</p>
-  {% endif %}
 {% endblock %}
