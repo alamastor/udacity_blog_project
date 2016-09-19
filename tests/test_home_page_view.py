@@ -15,7 +15,7 @@ def mock_BlogPost_query(mocker):
     keyId1.id = mocker.Mock(return_value=1)
     keyId2 = mocker.Mock()
     keyId2.id = mocker.Mock(return_value=2)
-    mocked_query.return_value.fetch_page.return_value = ([
+    mocked_query.return_value.order.return_value.fetch_page.return_value = ([
         BlogPost('Post 2', 'dfjals;dfjawpoefinasdni', datetime(2016, 8, 11), keyId2),
         BlogPost('Post 1', 'dfjals;dfjawpoefinasdni', datetime(2016, 8, 10), keyId1),
     ], mocker.Mock, False)
@@ -31,7 +31,7 @@ def mock_BlogPost_query_many_posts(mocker):
     keyId2.id = mocker.Mock(return_value=2)
     mocked_next_cur = mocker.Mock()
     type(mocked_next_cur).urlsafe = mocker.Mock(return_value=1234)
-    mocked_query.return_value.fetch_page.return_value = ([
+    mocked_query.return_value.order.return_value.fetch_page.return_value = ([
         BlogPost('Post 2', 'dfjals;dfjawpoefinasdni', datetime(2016, 8, 11), keyId2),
         BlogPost('Post 1', 'dfjals;dfjawpoefinasdni', datetime(2016, 8, 10), keyId1),
     ] * 5, mocked_next_cur, True)
