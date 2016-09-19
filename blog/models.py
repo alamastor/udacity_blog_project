@@ -1,4 +1,5 @@
 from google.appengine.ext import ndb
+import re
 
 
 # Key to use as parent for all blog post to ensure strong-consistancy.
@@ -27,6 +28,13 @@ class BlogPost(ndb.Model):
     def formatted_content(self):
         return self.content.replace('\n', '<br>')
 
+    @property
+    def username(self):
+        return User.get_by_id(self.user_id).username
+
+    @property
+    def paragraphs(self):
+        return self.content.split('\n')
 
 class User(ndb.Model):
     username = ndb.StringProperty(required=True)
@@ -61,6 +69,10 @@ class Comment(ndb.Model):
     @property
     def formatted_date(self):
         return self.datetime.strftime('%-d-%b-%Y')
+
+    @property
+    def paragraphs(self):
+        return self.comment.split('\n')
 
 
 class Like(ndb.Model):

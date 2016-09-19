@@ -26,9 +26,8 @@ def test_BlogPost_date_str(testdb):
 
 
 def test_formatted_content_adds_br_to_BlogPost_content(testdb):
-
-    content=(
-        'asdf asdfa sdf\n'
+    content = (
+        'asdf asdfa. sdf\n'
         'asdfasdf asdf asdf\n'
         'asdfasdf sdf'
     )
@@ -39,8 +38,22 @@ def test_formatted_content_adds_br_to_BlogPost_content(testdb):
         user_id=1
     )
     assert post.formatted_content == (
-        'asdf asdfa sdf<br>asdfasdf asdf asdf<br>asdfasdf sdf'
+        'asdf asdfa. sdf<br>asdfasdf asdf asdf<br>asdfasdf sdf'
     )
+
+
+def test_Post_username(testdb):
+    user = User(username='kate', pw_hash='asdf', salt='asdf')
+    user.put()
+    post = BlogPost(
+        title='asd',
+        content='asdfas',
+        datetime=datetime(2015, 12, 12),
+        user_id=user.key.id()
+    )
+    post.put()
+
+    assert post.username == user.username
 
 
 def test_User_query_by_username(testdb):
