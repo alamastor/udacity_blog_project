@@ -43,4 +43,4 @@ def test_create_post(run_app, browser):
     blog_post_page = BlogPostPage(browser, post_id)
     assert blog_post_page.title == title
     assert blog_post_page.date == post_date
-    assert blog_post_page.content == content.replace('\n', ' <br>')
+    assert blog_post_page.content == content.split('\n')

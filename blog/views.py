@@ -201,7 +201,8 @@ class CreateOrEditBlogPostPage(Handler, AuthHandler):
                 'blog_post_create_edit.html',
                 post=post,
                 title=title,
-                content=content
+                content=content,
+                user=self.user
             )
         else:
             self.redirect_to_login()

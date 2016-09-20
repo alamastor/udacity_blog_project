@@ -84,7 +84,8 @@ class SignUpPage(Page):
         password_input = self.browser.find_element_by_name('password')
         verify_input = self.browser.find_element_by_name('verify')
         email_input = self.browser.find_element_by_name('email')
-        submit = self.browser.find_element_by_xpath('//input[@type="submit"]')
+        form = self.browser.find_element_by_class_name('box-form')
+        submit = form.find_element_by_tag_name('button')
 
         username_input.clear()
         password_input.clear()
@@ -108,9 +109,10 @@ class LoginPage(Page):
         super(LoginPage, self).__init__(browser, base.MAIN_PAGE_URL + '/login')
 
     def submit_form(self, username, password):
+        form = self.browser.find_element_by_class_name('box-form')
         user_input = self.browser.find_element_by_name('username')
         pw_input = self.browser.find_element_by_name('password')
-        submit = self.browser.find_element_by_xpath('//input[@type="submit"]')
+        submit = form.find_element_by_tag_name('button')
 
         user_input.clear()
         pw_input.clear()
@@ -131,7 +133,7 @@ class CreatePage(Page):
     def submit_form(self, title, content):
         title_input = self.browser.find_element_by_name('title')
         content_input = self.browser.find_element_by_name('content')
-        submit = self.browser.find_element_by_xpath('//input[@type="submit"]')
+        submit = self.browser.find_element_by_class_name('post-form__submit')
 
         title_input.clear()
         content_input.clear()
@@ -166,7 +168,7 @@ class BlogPostPage(Page):
 
     @property
     def content(self):
-        return self.browser.find_element_by_class_name('post__content').text
+        return [e.text for e in self.browser.find_elements_by_class_name('post__content')]
 
     def edit(self, title=None, content=None):
         edit_button = self.browser.find_element_by_class_name('post__edit')
@@ -242,5 +244,5 @@ class Comment(object):
         submit_button.click()
 
     def delete(self):
-        delete_button = self.element.find_element_by_class_name('delete')
+        delete_button = self.element.find_element_by_class_name('comment__delete')
         delete_button.click()

@@ -74,6 +74,10 @@ class Comment(ndb.Model):
     def paragraphs(self):
         return self.comment.split('\n')
 
+    @property
+    def username(self):
+        return User.get_by_id(self.user_id).username
+
 
 class Like(ndb.Model):
     user_id = ndb.IntegerProperty(required=True)

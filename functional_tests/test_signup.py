@@ -21,10 +21,6 @@ def test_user_signup(run_app, browser):
     signup_page.submit_form('person', 'asdf', 'asdd')
     assert signup_page.get_error_message() == "Passwords didn't match"
 
-    # User tries to sign up with invalid eamil and sees an error.
-    signup_page.submit_form('person', 'asdfxx', 'asdfxx', 'asdfasdf')
-    assert signup_page.get_error_message() == 'Invalid email address'
-
     # User logs in valid credentials
     signup_page.submit_form('person', 'asdf', 'asdf', 'a@b.com')
 

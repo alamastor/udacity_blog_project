@@ -42,14 +42,14 @@ def test_blog_post(run_app, browser):
 
     # Post is visible on page.
     assert blog_post_page.title == 'B Post'
-    assert blog_post_page.content == 'qwerqtqreqwr'
+    assert blog_post_page.content == ['qwerqtqreqwr']
 
     # User edits post.
     blog_post_page.edit(title='C Post', content='updated content')
 
     # Post is updated.
     assert blog_post_page.title == 'C Post'
-    assert blog_post_page.content == 'updated content'
+    assert blog_post_page.content == ['updated content']
 
     # User deletes post.
     blog_post_page.delete()
