@@ -123,6 +123,18 @@ def test_Comment_get_by_id_and_post_id(testdb):
     ) == comment
 
 
+def test_Comment_username(testdb):
+    user = User(username='kate', pw_hash='asdf', salt='asdf')
+    user.put()
+    comment = Comment(
+        comment='asdf',
+        user_id=user.key.id(),
+        datetime=datetime.now()
+    )
+    comment.put()
+
+    assert comment.username == user.username
+
 def test_Like_get_by_post_id(testdb):
     blog_post = BlogPost(
         parent=blog_key(),

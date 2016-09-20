@@ -1,5 +1,4 @@
 import pytest
-from bs4 import BeautifulSoup
 from webtest import AppError
 
 from views_base import testapp, fake_user
@@ -36,11 +35,9 @@ def test_create_view_returns_200_if_logged_in(get_create_logged_in):
 
 
 def test_create_view_has_correct_form_fields(get_create_logged_in):
-    soup = BeautifulSoup(get_create_logged_in.normal_body, 'html.parser')
-    forms = soup.find_all('form')
-    assert len(forms) == 1
+    soup = get_create_logged_in.html
 
-    form = forms[0]
+    form = soup.find(class_="box-form")
     assert form.find('input', {'name': 'title'}) is not None
     assert form.find('textarea', {'name': 'content'}) is not None
 

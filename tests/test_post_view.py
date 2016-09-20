@@ -4,7 +4,6 @@ from datetime import datetime
 import pytest
 import webtest
 from webtest import AppError
-from bs4 import BeautifulSoup
 
 import views_base
 from views_base import (
@@ -45,7 +44,7 @@ def test_get_post_returns_200_if_post_exists(
 @pytest.fixture
 def soup(testapp, mock_BlogPost, mock_comments, mock_Like):
     response = testapp.get('/post/%i' % mock_BlogPost.key.id())
-    return BeautifulSoup(response.normal_body, 'html.parser')
+    return response.html
 
 @pytest.fixture
 def soup_logged_in(testapp, fake_user, mock_BlogPost, mock_comments, mock_Like):
@@ -54,7 +53,7 @@ def soup_logged_in(testapp, fake_user, mock_BlogPost, mock_comments, mock_Like):
         mock_BlogPost.key.id(),
         fake_user.key.id()
     )
-    return BeautifulSoup(response.normal_body, 'html.parser')
+    return response.html
 
 
 @pytest.fixture
@@ -152,8 +151,7 @@ def test_post_empty_comment_shows_error(testapp, fake_user, mock_BlogPost):
     user_id = fake_user.key.id()
     post_id = mock_BlogPost.key.id()
     response = logged_in_post_comment(testapp, post_id, user_id, '')
-    soup = BeautifulSoup(response.normal_body, 'html.parser')
-    error_message = soup.find(class_='error').text
+    error_message = response.html.find(class_='error').text
     assert error_message == 'Comment cannot be empty.'
 
 
@@ -176,9 +174,8 @@ def test_get_comment_shows_textarea(testapp, fake_user, mock_BlogPost):
     post_id = mock_BlogPost.key.id()
 
     response = logged_in_get_comment_page(testapp, user_id, post_id)
-    soup = BeautifulSoup(response.normal_body, 'html.parser')
 
-    assert len(soup.find_all('textarea')) == 1
+    assert len(response.html.find_all('textarea')) == 1
 
 
 def test_get_comment_shows_textarea(testapp, fake_user, mock_BlogPost):
@@ -186,9 +183,8 @@ def test_get_comment_shows_textarea(testapp, fake_user, mock_BlogPost):
     post_id = mock_BlogPost.key.id()
 
     response = logged_in_get_comment_page(testapp, user_id, post_id)
-    soup = BeautifulSoup(response.normal_body, 'html.parser')
 
-    assert len(soup.find_all('textarea')) == 1
+    assert len(response.html.find_all('textarea')) == 1
 
 
 def test_get_comment_with_nonexistant_id_returns_404(
@@ -226,9 +222,8 @@ def test_get_comment_with_id_show_comment_in_textarea(
     mock_Comment(mocker, comment, user_id, 12345)
 
     response = logged_in_get_comment_page(testapp, user_id, post_id, 12345)
-    soup = BeautifulSoup(response.normal_body, 'html.parser')
 
-    assert soup.textarea.text == comment
+    assert response.html.textarea.text == comment
 
 
 def test_post_comment_with_id_with_other_user_returns_403(
@@ -267,8 +262,7 @@ def test_comment_with_same_user_has_delete_button(
     mock_Comment(mocker, 'C comment', user_id, 1234)
 
     response = views_base.logged_in_get_post_page(testapp, post_id, user_id)
-    soup = BeautifulSoup(response.normal_body, 'html.parser')
-    assert len(soup.find_all(class_='delete')) == 1
+    assert len(response.html.find_all(class_='comment__delete')) == 1
 
 
 def logged_in_post_delete(testapp, post_id, comment_id, user_id):

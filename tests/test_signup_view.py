@@ -1,5 +1,4 @@
 import pytest
-from bs4 import BeautifulSoup
 import jinja2
 
 import views_base
@@ -11,9 +10,8 @@ def test_signup_page_returns_200(testapp):
 
 
 def test_signup_page_has_form_with_correct_fields(testapp):
-    body = testapp.get('/signup').normal_body
-    soup = BeautifulSoup(body, 'html.parser')
-    forms = soup.find_all('form')
+    response = testapp.get('/signup')
+    forms = response.html.find_all('form')
     assert len(forms) == 1
 
     form = forms[0]
@@ -74,15 +72,14 @@ def test_post_with_no_email_is_valid(testapp):
 
 
 def test_invalid_post_keeps_username_and_email_in_form(testapp):
-    body = post_to_signup(
+    response = post_to_signup(
         testapp,
         username='sadfas',
         password='axaxax',
         email='asdfasd'
-    ).normal_body
+    )
 
-    soup = BeautifulSoup(body, 'html.parser')
-    form = soup.form
+    form = response.html.form
     assert form.find('input', {'name': 'username'})['value'] == 'sadfas'
     assert form.find('input', {'name': 'email'})['value'] == 'asdfasd'
 

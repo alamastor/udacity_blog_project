@@ -1,4 +1,3 @@
-from bs4 import BeautifulSoup
 import pytest
 from webtest import AppError
 
@@ -16,7 +15,7 @@ def test_view_blog_post_as_different_user_has_no_edit_link(
         mock_BlogPost.key.id(),
         fake_user.key.id()
     )
-    soup = BeautifulSoup(response.normal_body, 'html.parser')
+    soup = response.html
     assert not soup.find(class_='post__edit')
 
 
@@ -29,7 +28,7 @@ def test_view_blog_post_as_same_user_has_edit_link(
         mock_post.key.id(),
         fake_user.key.id()
     )
-    soup = BeautifulSoup(response.normal_body, 'html.parser')
+    soup = response.html
     assert soup.find(class_='post__edit')
 
 
@@ -80,7 +79,7 @@ def test_authorized_get_post_id_shows_edit_boxes_with_prefilled_vals(
     post_id = mock_BlogPost(mocker, user_id).key.id()
     response = views_base.logged_in_get(testapp, '/post/%i/edit' % post_id, user_id)
 
-    soup = BeautifulSoup(response.normal_body, 'html.parser')
+    soup = response.html
 
     # Text values from mocked_BlogPost in views_base
     assert soup.find(class_='post-form__post-title')['value'] == 'Post 1'
@@ -176,7 +175,7 @@ def test_view_blog_post_as_different_user_has_no_delete_button(
         mock_BlogPost.key.id(),
         fake_user.key.id()
     )
-    soup = BeautifulSoup(response.normal_body, 'html.parser')
+    soup = response.html
     assert not soup.find(class_='post__delete')
 
 
@@ -189,7 +188,7 @@ def test_view_blog_post_as_same_user_has_delete_button(
         mock_post.key.id(),
         fake_user.key.id()
     )
-    soup = BeautifulSoup(response.normal_body, 'html.parser')
+    soup = response.html
     assert soup.find(class_='post__delete')
 
 

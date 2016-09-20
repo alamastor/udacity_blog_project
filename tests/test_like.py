@@ -1,7 +1,6 @@
 from collections import namedtuple
 from datetime import datetime
 
-from bs4 import BeautifulSoup
 import pytest
 from webtest import AppError
 
@@ -15,8 +14,7 @@ def test_post_page_has_like_button(
     testapp, mock_BlogPost, mock_comments, mock_Like
 ):
     response = testapp.get('/post/%i' % mock_BlogPost.key.id())
-    soup = BeautifulSoup(response.normal_body, 'html.parser')
-    assert soup.find(class_='post__like')
+    assert response.html.find(class_='post__like')
 
 
 def test_post_page_logged_in_as_creator_has_no_like_button(
@@ -28,8 +26,7 @@ def test_post_page_logged_in_as_creator_has_no_like_button(
         mock_blog_post.key.id(),
         fake_user.key.id()
     )
-    soup = BeautifulSoup(response.normal_body, 'html.parser')
-    assert not soup.find(class_='post__like')
+    assert not response.html.find(class_='post__like')
 
 
 def test_post_page_show_number_of_likes_if_user_has_liked(
@@ -49,8 +46,7 @@ def test_post_page_show_number_of_likes_if_user_has_liked(
         mock_BlogPost.key.id(),
         fake_user.key.id()
     )
-    soup = BeautifulSoup(response.normal_body, 'html.parser')
-    assert soup.find(class_='post__likes').text == '3 Likes'
+    assert response.html.find(class_='post__likes').text == '3 Likes'
 
 
 def test_post_page_show_number_of_likes_if_user_is_creator(
@@ -70,8 +66,7 @@ def test_post_page_show_number_of_likes_if_user_is_creator(
         mock_blog_post.key.id(),
         fake_user.key.id()
     )
-    soup = BeautifulSoup(response.normal_body, 'html.parser')
-    assert soup.find(class_='post__likes').text == '3 Likes'
+    assert response.html.find(class_='post__likes').text == '3 Likes'
 
 
 def test_post_like_logged_out_redirects_to_login(testapp, mock_BlogPost):

@@ -1,7 +1,6 @@
 from collections import namedtuple
 from datetime import datetime
 
-from bs4 import BeautifulSoup
 import pytest
 
 from views_base import testapp
@@ -59,8 +58,7 @@ def test_home_page_post_calls_query_order(testapp, mock_BlogPost_query):
 
 
 def test_home_has_links_to_individual_posts(testapp, mock_BlogPost_query):
-    body = testapp.get('/').normal_body
-    soup = BeautifulSoup(body, 'html.parser')
+    soup = testapp.get('/').html
     links = [x.a['href'] for x in soup.find_all('h2', {'class': 'post__title'})]
     assert links == ['/post/2', '/post/1']
 

@@ -1,7 +1,6 @@
 from collections import namedtuple
 
 import pytest
-from bs4 import BeautifulSoup
 
 from blog.models import BlogPost, User
 from blog import auth
@@ -121,8 +120,7 @@ def test_logged_in_user_has_username_displayed_in_nav(testapp, fake_user):
     response = testapp.get('/', headers={
         'Cookie': 'sess=%s|%s; Path=/' % (user_id, auth.make_secure_val(user_id))
     })
-    soup = BeautifulSoup(response.body, 'html.parser')
-    assert fake_user.username in soup.nav.text
+    assert fake_user.username in response.html.nav.text
 
 
 def test_get_with_referer_sets_after_login_cookie(testapp):
