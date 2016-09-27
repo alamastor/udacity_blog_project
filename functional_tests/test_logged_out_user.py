@@ -33,4 +33,4 @@ def test_user_can_view_posts(run_app, browser, add_posts):
     post_id = int(browser.current_url.split('/')[-1])
     blog_post_page = BlogPostPage(browser, post_id)
     assert blog_post_page.title == 'Post N'
-    assert blog_post_page.date == datetime.now().date()
+    assert blog_post_page.date == datetime.utcnow().date()

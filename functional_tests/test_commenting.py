@@ -3,7 +3,7 @@ from datetime import datetime
 import pytest
 from selenium.webdriver.remote.errorhandler import NoSuchElementException
 
-from pages import BlogPostPage, LoginPage
+from pages import BlogPostPage, LoginPage, WelcomePage
 import base
 from base import run_app, browser
 
@@ -46,6 +46,9 @@ def test_commenting_page(run_app, browser):
     login_page = LoginPage(browser)
     test_user = base.create_test_user()
     login_page.submit_form(test_user.username, test_user.password)
+
+    # User is redirected to welcome and continues.
+    WelcomePage(browser).continue_link.click()
 
     # User is redirected to post and writes a comment.
     post_page.write_comment('A mediocre comment')
