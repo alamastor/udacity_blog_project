@@ -87,8 +87,10 @@ def post_user_to_login(testapp, user, cookie_dict={}):
     )
 
 
-def test_login_with_correct_credentials_redirects(testapp, mock_valid_User):
-    assert post_user_to_login(testapp, mock_valid_User).status_int == 302
+def test_login_with_correct_credentials_redirects_to_welcome(testapp, mock_valid_User):
+    res = post_user_to_login(testapp, mock_valid_User)
+    assert res.status_int == 302
+    assert res.location.split('/')[-1] == 'welcome'
 
 
 def test_login_shows_error_on_non_existant_user(testapp, mock_non_existant_User):
@@ -136,19 +138,3 @@ def test_get_with_after_login_cookie_set_does_not_overwrite(testapp):
     )
     assert testapp.cookies['after_login'] == '"/zxcv"'
     assert not views_base.cookie_set(res, 'after_login', '/zxcv')
-
-
-def test_login_with_after_login_cookie_redirects_correctly(
-    testapp, mock_valid_User
-):
-    res = post_user_to_login(testapp, mock_valid_User, {'after_login': '/asdf'})
-    assert res.status_int == 302
-    assert res.location.split('/')[-1] == 'asdf'
-
-
-def test_login_with_after_login_cookie_deletes_cookie(
-    testapp, mock_valid_User
-):
-    res = post_user_to_login(testapp, mock_valid_User, {'after_login': '/asdf'})
-
-    assert views_base.cookie_set(res, 'after_login', '')

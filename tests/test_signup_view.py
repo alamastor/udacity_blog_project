@@ -94,8 +94,9 @@ def valid_post(testapp):
     )
 
 
-def test_valid_post_redirects(testapp):
+def test_valid_post_redirects_to_welcome(testapp):
     assert valid_post(testapp).status_int == 302
+    assert valid_post(testapp).location.split('/')[-1] == 'welcome'
 
 
 def test_valid_post_calls_create_user(testapp, mocker):
@@ -108,33 +109,3 @@ def test_valid_post_calls_login(testapp, mocker):
     mock_login = mocker.patch('blog.views.AuthHandler.log_user_in')
     valid_post(testapp)
     mock_login.assert_called_once()
-
-
-def test_signup_with_after_login_cookie_redirects_correctly(testapp):
-    res = testapp.post(
-        '/signup',
-        dict(
-            username='sadfas',
-            password='axaxax',
-            verify='axaxax',
-            email='asdf@x.com'
-        ),
-        headers={'Cookie':'after_login=/asdf;'}
-    )
-    assert res.status_int == 302
-    assert res.location.split('/')[-1] == 'asdf'
-
-
-def test_signup_with_after_login_cookie_delete_cookie(testapp):
-    res = testapp.post(
-        '/signup',
-        dict(
-            username='sadfas',
-            password='axaxax',
-            verify='axaxax',
-            email='asdf@x.com'
-        ),
-        headers={'Cookie':'after_login=/asdf;'}
-    )
-
-    assert views_base.cookie_set(res, 'after_login', '')

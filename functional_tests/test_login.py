@@ -2,7 +2,7 @@ import pytest
 
 import base
 from base import run_app, browser
-from pages import LoginPage, HomePage
+from pages import LoginPage, HomePage, WelcomePage
 
 
 @pytest.fixture
@@ -23,7 +23,13 @@ def test_user_login(run_app, browser, test_user):
     # User logs in.
     login_page.submit_form(test_user.username, test_user.password)
 
-    # User is redirected to home page
+    # User is redirected to welcome page
+    welcome_page = WelcomePage(browser)
+    assert welcome_page.is_open()
+    assert browser.find_element_by_class_name('welcome-header').text == 'Welcome %s!' % test_user.username
+
+    # User clicks continue and sees username in nav.
+    welcome_page.continue_link.click()
     home_page = HomePage(browser)
     assert home_page.header.text == 'Bloggity!'
 

@@ -230,12 +230,7 @@ class LoginPage(Handler, AuthHandler):
 
         if valid_user:
             self.log_user_in(user.key.id())
-            redirect_cookie = self.request.cookies.get('after_login')
-            if redirect_cookie:
-                self.response.delete_cookie('after_login')
-                self.redirect(str(redirect_cookie))
-            else:
-                self.redirect('/')
+            self.redirect('/welcome')
         else:
             self.render('login.html', error=True)
 
@@ -272,11 +267,17 @@ class SignUpPage(Handler, AuthHandler):
             user_id = auth.create_user(username, password, email)
             self.log_user_in(user_id)
             redirect_cookie = self.request.cookies.get('after_login')
-            if redirect_cookie:
-                self.response.delete_cookie('after_login')
-                self.redirect(str(redirect_cookie))
-            else:
-                self.redirect('/')
+            self.redirect('/welcome')
+
+
+class WelcomePage(Handler, AuthHandler):
+
+    def get(self):
+        if self.user:
+            after_login_link = self.request.cookies.get('after_login')
+            self.render('welcome.html', user=self.user, after_login=after_login_link)
+        else:
+            self.redirect('/login')
 
 
 class CommentPage(Handler, AuthHandler):

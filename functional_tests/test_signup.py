@@ -1,6 +1,6 @@
 import base
 from base import run_app, browser
-from pages import SignUpPage
+from pages import SignUpPage, WelcomePage
 
 
 def test_user_signup(run_app, browser):
@@ -24,8 +24,13 @@ def test_user_signup(run_app, browser):
     # User logs in valid credentials
     signup_page.submit_form('person', 'asdf', 'asdf', 'a@b.com')
 
-    # User is redirected and sees username in nav.
-    browser.implicitly_wait(5)
+    # User is redirected to welcome page
+    welcome_page = WelcomePage(browser)
+    assert welcome_page.is_open()
+    assert browser.find_element_by_class_name('welcome-header').text == 'Welcome person!'
+
+    # User clicks continue and sees username in nav.
+    welcome_page.continue_link.click()
     header_text = browser.find_element_by_tag_name('h1').text
     assert header_text == 'Bloggity!'
     assert 'person' in browser.find_element_by_tag_name('nav').text

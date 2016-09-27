@@ -15,6 +15,7 @@ MAIN_PAGE_URL = 'http://localhost:8080'
 def browser():
     from selenium import webdriver
     browser = webdriver.Chrome()
+    browser.implicitly_wait(2)
     yield browser
 
     browser.quit()

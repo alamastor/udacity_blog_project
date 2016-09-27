@@ -51,11 +51,8 @@ def mock_BlogPost(mocker, user_id=2):
 
 
 def logged_in_get(testapp, url, user_id):
-    return testapp.get(url, headers={
-        'Cookie': 'sess=%s|%s;' % (
-            user_id, auth.make_secure_val(user_id)
-        )
-    })
+    testapp.set_cookie('sess', '%s|%s' % (user_id, auth.make_secure_val(user_id)))
+    return testapp.get(url)
 
 
 def logged_in_get_post_page(testapp, post_id, user_id):
@@ -103,4 +100,3 @@ def cookie_set(response, cookie_name, cookie_val):
         if name == cookie_name:
             return val == cookie_val
     return False  # correct cookie not found
-

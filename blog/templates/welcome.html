@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{% block body %}
+  <h1 class="welcome-header">Welcome {{ user.username }}!</h1>
+  <a class="continue-link" href="{{ after_login or '/' }}">Continue</a>
+{% endblock %}

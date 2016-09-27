@@ -125,6 +125,15 @@ class LoginPage(Page):
         return self.browser.find_element_by_class_name('error').text
 
 
+class WelcomePage(Page):
+
+    def __init__(self, browser):
+        super(WelcomePage, self).__init__(browser, base.MAIN_PAGE_URL + '/welcome')
+
+    @property
+    def continue_link(self):
+        return self.browser.find_element_by_class_name('continue-link')
+
 class CreatePage(Page):
 
     def __init__(self, browser):
