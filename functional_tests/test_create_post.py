@@ -1,9 +1,9 @@
-from datetime import date, datetime
+from datetime import datetime
 
 import base
 from base import run_app, browser
 from blog import auth
-from pages import HomePage, LoginPage, CreatePage, BlogPostPage
+from pages import HomePage, LoginPage, CreatePage, BlogPostPage, WelcomePage
 
 
 def test_create_post(run_app, browser):
@@ -16,6 +16,9 @@ def test_create_post(run_app, browser):
     # User logs in.
     test_user = base.create_test_user()
     login_page.submit_form(test_user.username, test_user.password)
+
+    # User is redirected to welcome page and clicks continue.
+    WelcomePage(browser).continue_link.click()
 
     # User is redirected to create page.
     create_page = CreatePage(browser)
@@ -37,7 +40,7 @@ def test_create_post(run_app, browser):
         'asd f sdf sdfasfsdf asdf asdf as'
     )
     create_page.submit_form(title, content)
-    post_date = date.today()
+    post_date = datetime.utcnow().date()
 
     post_id = int(browser.current_url.split('/')[-1])
     blog_post_page = BlogPostPage(browser, post_id)
