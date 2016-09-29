@@ -45,7 +45,8 @@ class BlogPostPage(Handler, AuthHandler):
                 user=self.user,
                 post=post,
                 comments=comments,
-                display_likes=self.display_likes,
+                already_liked=self.already_liked_blog_post,
+                is_creator=self.is_blog_post_creator,
                 likes=self.likes
             )
         else:
@@ -58,10 +59,21 @@ class BlogPostPage(Handler, AuthHandler):
             else:
                 self.post_id = None
 
-            if self.request.get('delete') == 'delete':
-                self.delete()
-            elif self.request.get('like') == 'like':
-                self.like()
+            delete_req = self.request.get('delete')
+            like_req = self.request.get('like')
+
+            if delete_req:
+                if delete_req == 'delete':
+                    self.delete()
+                else:
+                    self.abort(400)
+            elif like_req:
+                if like_req == 'like':
+                    self.like()
+                elif like_req == 'unlike':
+                    self.unlike()
+                else:
+                    self.abort(400)
             elif self.post_id:
                 self.update_blog_post()
             else:
@@ -152,7 +164,24 @@ class BlogPostPage(Handler, AuthHandler):
         if self.is_blog_post_creator:
             self.abort(403)
 
+        if self.already_liked_blog_post:
+            self.abort(403)
+
         Like(parent=self.get_post().key, user_id=self.user.key.id()).put()
+
+        self.render_blog_post()
+
+    def unlike(self):
+        if self.is_blog_post_creator:
+            self.abort(403)
+
+        if not self.already_liked_blog_post:
+            self.abort(403)
+
+        like = Like.get_by_blog_post_id_and_user_id(
+            self.get_post().key.id(), self.user.key.id()
+        )
+        like.key.delete()
 
         self.render_blog_post()
 
@@ -161,13 +190,6 @@ class BlogPostPage(Handler, AuthHandler):
     def already_liked_blog_post(self):
         likes = Like.get_by_blog_post_id(self.post_id)
         if self.user and self.user.key.id() in [l.user_id for l in likes]:
-            return True
-        else:
-            return False
-
-    @property
-    def display_likes(self):
-        if self.is_blog_post_creator or self.already_liked_blog_post:
             return True
         else:
             return False
@@ -310,7 +332,6 @@ class CommentPage(Handler, AuthHandler):
                 self.comment_id = int(comment_id)
             else:
                 self.comment_id = None
-
 
             if self.request.get('delete') == 'delete':
                 self.delete()

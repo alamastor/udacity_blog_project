@@ -4,7 +4,7 @@
     <h1 class="post__title">{{ post.title }}</h1>
     <h3 class="post__date">{{ post.date_str }}</h3>
   </div>
-  {% if user and user.key.id() == post.user_id %}
+  {% if is_creator %}
     <div class="post__links">
       <a class="post__edit" href="/post/{{ post.key.id() }}/edit">Edit</a>
       <form method="post">
@@ -13,12 +13,19 @@
     </div>
   {% endif %}
   <h2 class="post__user">by {{ post.username }}</h2>
-  {% if display_likes %}
+  {% if is_creator or already_liked %}
     <div class="post__likes">{{ likes }} Likes</div>
-  {% else %}
-    <form method="post">
-      <button class="post__like" name="like" value="like">Like this post</button>
-    </form>
+  {% endif %}
+  {% if not is_creator %}
+    {% if not already_liked %}
+      <form method="post">
+        <button class="post__like" name="like" value="like">Like this post</button>
+      </form>
+    {% else %}
+      <form method="post">
+        <button class="post__unlike" name="like" value="unlike">Unlike</button>
+      </form>
+    {% endif %}
   {% endif %}
   {% for para in post.paragraphs %}
     <p class="post__content">{{ para }}</p>

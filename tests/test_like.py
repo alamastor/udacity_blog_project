@@ -29,7 +29,7 @@ def test_post_page_logged_in_as_creator_has_no_like_button(
     assert not response.html.find(class_='post__like')
 
 
-def test_post_page_show_number_of_likes_if_user_has_liked(
+def test_post_page_show_number_of_likes_and_unlike_if_user_has_liked(
     mocker, testapp, mock_BlogPost, mock_comments, fake_user
 ):
     user_id = fake_user.key.id()
@@ -47,6 +47,7 @@ def test_post_page_show_number_of_likes_if_user_has_liked(
         fake_user.key.id()
     )
     assert response.html.find(class_='post__likes').text == '3 Likes'
+    assert response.html.find(class_='post__unlike')
 
 
 def test_post_page_show_number_of_likes_if_user_is_creator(
@@ -118,3 +119,56 @@ def test_logged_in_post_like_calls_Like_and_put(
         parent=mock_BlogPost.key
     )
     mock_Like.return_value.put.assert_called_once()
+
+
+def test_unlike_calls_Like_and_delete(
+    mocker, testapp, mock_comments, fake_user, mock_Like, mock_BlogPost
+):
+    mock_already_liked = mocker.patch(
+        'blog.views.BlogPostPage.already_liked_blog_post', new_callable=mocker.PropertyMock
+    )
+    mock_already_liked.return_value = True
+
+    views_base.logged_in_post(
+        testapp,
+        '/post/%i' % mock_BlogPost.key.id(),
+        fake_user.key.id(),
+        {'like': 'unlike'}
+    )
+
+    mock_Like.assert_called_once_with(
+        user_id=fake_user.key.id(),
+        parent=mock_BlogPost.key
+    )
+    mock_Like.return_value.key.delete.assert_called_once()
+
+
+def test_cannont_like_twice(
+    mocker, testapp, mock_comments, fake_user, mock_Like, mock_BlogPost
+):
+    mock_already_liked = mocker.patch(
+        'blog.views.BlogPostPage.already_liked_blog_post', new_callable=mocker.PropertyMock
+    )
+    mock_already_liked.return_value = True
+
+    with pytest.raises(AppError) as excinfo:
+        views_base.logged_in_post(
+            testapp,
+            '/post/%i' % mock_BlogPost.key.id(),
+            fake_user.key.id(),
+            {'like': 'like'}
+        )
+    assert '403' in str(excinfo.value)
+
+
+def test_cannont_unlike_if_not_liked(
+    mocker, testapp, mock_comments, fake_user, mock_Like, mock_BlogPost
+):
+    with pytest.raises(AppError) as excinfo:
+        res = views_base.logged_in_post(
+            testapp,
+            '/post/%i' % mock_BlogPost.key.id(),
+            fake_user.key.id(),
+            {'like': 'unlike'}
+        )
+    assert '403' in str(excinfo.value)

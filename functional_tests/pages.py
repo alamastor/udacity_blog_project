@@ -221,8 +221,13 @@ class BlogPostPage(Page):
         ele = self.browser.find_element_by_class_name('post__likes')
         return int(ele.text.split()[0])
 
-    def like(self):
-        self.browser.find_element_by_class_name('post__like').click()
+    @property
+    def like_button(self):
+        return self.browser.find_element_by_class_name('post__like')
+
+    @property
+    def unlike_button(self):
+        return self.browser.find_element_by_class_name('post__unlike')
 
 
 class Comment(object):

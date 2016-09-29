@@ -1,7 +1,7 @@
 import pytest
 from selenium.webdriver.remote.errorhandler import NoSuchElementException
 
-from pages import BlogPostPage, LoginPage, HomePage
+from pages import BlogPostPage, LoginPage, HomePage, WelcomePage
 import base
 from base import run_app, browser
 
@@ -20,18 +20,23 @@ def test_like_posts(run_app, browser):
     blog_post_page.visit_page()
 
     # User clicks like, but is not logged in so is redirected to login.
-    blog_post_page.like()
+    blog_post_page.like_button.click()
 
     login_page = LoginPage(browser)
     assert login_page.is_open()
 
-    # User logs in and is redirected back to the post.
+    # User logs in.
     login_page.submit_form(test_user.username, test_user.password)
+
+    # User is redirected to welcome page and clicks continue.
+    WelcomePage(browser).continue_link.click()
+
+    # User is redirected to blog post page.
     assert blog_post_page.is_open()
 
     # Like button is no longer visible, as user can't like own post.
     with pytest.raises(NoSuchElementException) as e:
-        blog_post_page.like()
+        blog_post_page.like_button
     assert 'post__like' in e.value.msg
 
     # User clicks like to home page, and goes to other post.
@@ -43,12 +48,12 @@ def test_like_posts(run_app, browser):
     assert blog_post_page.is_open()
 
     # User clicks like.
-    blog_post_page.like()
+    blog_post_page.like_button.click()
 
     # The post now has one like
     assert blog_post_page.likes == 1
 
-    # The like button is no longer visible, but a liked icon is.
-    with pytest.raises(NoSuchElementException) as e:
-        blog_post_page.like()
-    assert 'post__like' in e.value.msg
+    # The like button is replaced with an unlike button. User presses unlike,
+    # and is like button is now visible.
+    blog_post_page.unlike_button.click()
+    assert blog_post_page.like_button

@@ -154,3 +154,21 @@ def test_Like_get_by_post_id(testdb):
     assert len(result) == 2
     assert like_1 in result
     assert like_2 in result
+
+def test_like_get_by_post_id_and_user_id(testdb):
+    blog_post = BlogPost(
+        parent=blog_key(),
+        title='asd',
+        content='asdf',
+        datetime=datetime.now(),
+        user_id=1
+    )
+    blog_post.put()
+
+    like_1 = Like(parent=blog_post.key, user_id=1)
+    like_1.put()
+    like_2 = Like(parent=blog_post.key, user_id=2)
+    like_2.put()
+
+    result = Like.get_by_blog_post_id_and_user_id(blog_post.key.id(), user_id=2)
+    assert result == like_2
