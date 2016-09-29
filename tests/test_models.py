@@ -2,7 +2,7 @@ import pytest
 
 from datetime import datetime
 
-from blog.models import blog_key, BlogPost, User, Comment, Like
+from models import blog_key, BlogPost, User, Comment, Like
 
 
 @pytest.fixture

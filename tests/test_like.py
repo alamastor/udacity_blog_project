@@ -34,7 +34,7 @@ def test_post_page_show_number_of_likes_and_unlike_if_user_has_liked(
 ):
     user_id = fake_user.key.id()
     Like = namedtuple('Like', ['user_id', 'datetime'])
-    mock_Like = mocker.patch('blog.views.views.Like', autospec=True)
+    mock_Like = mocker.patch('views.views.Like', autospec=True)
     mock_Like.get_by_blog_post_id.return_value = [
         Like(user_id, datetime.now()),
         Like(11, datetime.now()),
@@ -56,7 +56,7 @@ def test_post_page_show_number_of_likes_if_user_is_creator(
     mock_blog_post = mock_BlogPost(mocker, user_id=fake_user.key.id())
 
     Like = namedtuple('Like', ['user_id', 'datetime'])
-    mock_Like = mocker.patch('blog.views.views.Like', autospec=True)
+    mock_Like = mocker.patch('views.views.Like', autospec=True)
     mock_Like.get_by_blog_post_id.return_value = [
         Like(10, datetime.now()),
         Like(11, datetime.now()),
@@ -125,7 +125,7 @@ def test_unlike_calls_Like_and_delete(
     mocker, testapp, mock_comments, fake_user, mock_Like, mock_BlogPost
 ):
     mock_already_liked = mocker.patch(
-        'blog.views.views.BlogPostPage.already_liked_blog_post', new_callable=mocker.PropertyMock
+        'views.views.BlogPostPage.already_liked_blog_post', new_callable=mocker.PropertyMock
     )
     mock_already_liked.return_value = True
 
@@ -147,7 +147,7 @@ def test_cannont_like_twice(
     mocker, testapp, mock_comments, fake_user, mock_Like, mock_BlogPost
 ):
     mock_already_liked = mocker.patch(
-        'blog.views.views.BlogPostPage.already_liked_blog_post', new_callable=mocker.PropertyMock
+        'views.views.BlogPostPage.already_liked_blog_post', new_callable=mocker.PropertyMock
     )
     mock_already_liked.return_value = True
 

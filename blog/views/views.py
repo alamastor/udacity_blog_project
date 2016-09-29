@@ -4,9 +4,9 @@ import re
 import webapp2
 from google.appengine.datastore.datastore_query import Cursor
 
-from handlers import Handler, AuthHandler
-from ..models import blog_key, BlogPost, User, Comment, Like
-from .. import auth
+from base import Handler, AuthHandler
+from models import blog_key, BlogPost, User, Comment, Like
+import auth
 
 
 class HomePage(Handler, AuthHandler):

@@ -9,6 +9,7 @@ import pytest
 SDK_PATH = '/usr/local/google_appengine'
 
 def main(functional, sdk_path=SDK_PATH, files=[], fail_fast=False):
+    # Add App Engine SKD to Python path
     sys.path.insert(0, sdk_path)
 
     import dev_appserver
@@ -20,6 +21,8 @@ def main(functional, sdk_path=SDK_PATH, files=[], fail_fast=False):
     elif functional:
         cmd = ['functional_tests']
     else:
+        # Add blog dir to Python path.
+        sys.path.append(os.getcwd() + '/blog')
         cmd = ['tests']
 
     if fail_fast:

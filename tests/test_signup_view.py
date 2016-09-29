@@ -100,12 +100,12 @@ def test_valid_post_redirects_to_welcome(testapp):
 
 
 def test_valid_post_calls_create_user(testapp, mocker):
-    mock_create_user = mocker.patch('blog.auth.create_user')
+    mock_create_user = mocker.patch('auth.create_user')
     valid_post(testapp)
     mock_create_user.assert_called_once()
 
 
 def test_valid_post_calls_login(testapp, mocker):
-    mock_login = mocker.patch('blog.views.views.AuthHandler.log_user_in')
+    mock_login = mocker.patch('views.views.AuthHandler.log_user_in')
     valid_post(testapp)
     mock_login.assert_called_once()
