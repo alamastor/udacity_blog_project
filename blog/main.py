@@ -1,6 +1,6 @@
 import webapp2
 
-from views import (
+from views.views import (
     HomePage, BlogPostPage, LoginPage, SignUpPage, CommentPage,
     CreateOrEditBlogPostPage, LogoutHandler, WelcomePage
 )

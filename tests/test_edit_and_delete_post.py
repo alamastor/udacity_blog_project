@@ -32,10 +32,10 @@ def test_view_blog_post_as_same_user_has_edit_link(
     assert soup.find(class_='post__edit')
 
 
-def test_get_noexistant_post_edit_page_return_404(
+def test_get_noexistant_post_edit_page_returns_404(
     testapp, mocker, fake_user
 ):
-    mock_BlogPost = mocker.patch('blog.views.BlogPost')
+    mock_BlogPost = mocker.patch('blog.views.views.BlogPost')
     mock_BlogPost.get_by_id.return_value = None
     with pytest.raises(AppError) as excinfo:
         views_base.logged_in_get(
@@ -99,7 +99,7 @@ def test_post_to_post_edit_page_redirects_to_login_if_not_logged_in(
 def test_post_to_noexistant_post_edit_page_return_404(
     testapp, mocker, fake_user
 ):
-    mock_BlogPost = mocker.patch('blog.views.BlogPost')
+    mock_BlogPost = mocker.patch('blog.views.views.BlogPost')
     mock_BlogPost.get_by_id.return_value = None
     user_id = fake_user.key.id()
     with pytest.raises(AppError) as excinfo:
@@ -205,7 +205,7 @@ def test_post_delete_redirects_to_login_if_not_logged_in(
 def test_post_delete_to_nonexistant_post_returns_404(
     testapp, mocker, fake_user
 ):
-    mock_BlogPost = mocker.patch('blog.views.BlogPost')
+    mock_BlogPost = mocker.patch('blog.views.views.BlogPost')
     mock_BlogPost.get_by_id.return_value = None
     user_id = fake_user.key.id()
     with pytest.raises(AppError) as excinfo:

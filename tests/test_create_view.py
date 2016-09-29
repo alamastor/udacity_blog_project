@@ -71,7 +71,7 @@ def test_invalid_post_keeps_content_in_form(testapp, fake_user):
 
 
 def test_valid_post_calls_BlogPost(testapp, fake_user, mocker):
-    mock_BlogPost = mocker.patch('blog.views.BlogPost', autospec=True)
+    mock_BlogPost = mocker.patch('blog.views.views.BlogPost', autospec=True)
     mock_BlogPost.return_value.key.id = mocker.Mock(return_value=1)
     post_logged_in(testapp, fake_user, {
         'title': 'axasdf', 'content': 'qwerqwer'
@@ -81,7 +81,7 @@ def test_valid_post_calls_BlogPost(testapp, fake_user, mocker):
 
 
 def test_valid_post_redirects_to_post_page(testapp, fake_user, mocker):
-    mock_BlogPost = mocker.patch('blog.views.BlogPost', autospec=True)
+    mock_BlogPost = mocker.patch('blog.views.views.BlogPost', autospec=True)
     mock_BlogPost.return_value.key.id = mocker.Mock(return_value=1)
     response = post_logged_in(testapp, fake_user, {
         'title': 'axasdf', 'content': 'qwerqwer'

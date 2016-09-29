@@ -35,7 +35,7 @@ def fake_user():
 
 @pytest.fixture
 def mock_BlogPost(mocker, user_id=2):
-    mocked_BlogPost = mocker.patch('blog.views.BlogPost', autospec=True)
+    mocked_BlogPost = mocker.patch('blog.views.views.BlogPost', autospec=True)
     mock_post = mocker.Mock()
     key = mocker.Mock(return_value='A1')
     key.id = mocker.Mock(return_value=1)
@@ -76,7 +76,7 @@ def mock_comments(mocker):
     Comment = namedtuple('Comment', [
         'comment', 'paragraphs', 'datetime', 'formatted_date', 'username'
     ])
-    mocked_Comment = mocker.patch('blog.views.Comment', autospec=True)
+    mocked_Comment = mocker.patch('blog.views.views.Comment', autospec=True)
     mocked_Comment.get_by_post_key.return_value = [
         Comment('A comment', ['A comment'], datetime(2014, 1, 1), '1-Jan-2014', 'A user'),
         Comment('B comment', ['B comment'], datetime(2015, 1, 1), '1-Jan-2015', 'B user'),
@@ -86,7 +86,7 @@ def mock_comments(mocker):
 
 @pytest.fixture
 def mock_Like(mocker):
-    mocked_Like = mocker.patch('blog.views.Like', autospec=True)
+    mocked_Like = mocker.patch('blog.views.views.Like', autospec=True)
     mock_like = mocker.Mock()
     type(mock_like).put = mocker.Mock()
     mocked_Like.return_value = mock_like
