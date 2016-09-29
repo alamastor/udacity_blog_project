@@ -15,14 +15,15 @@ def main(functional, sdk_path=SDK_PATH, files=[], fail_fast=False):
     import dev_appserver
     dev_appserver.fix_sys_path()
 
+    # Add blog dir to Python path.
+    sys.path.append(os.getcwd() + '/blog')
+
     if files:
         for file_ in files:
             cmd = [file_]
     elif functional:
         cmd = ['functional_tests']
     else:
-        # Add blog dir to Python path.
-        sys.path.append(os.getcwd() + '/blog')
         cmd = ['tests']
 
     if fail_fast:
