@@ -57,6 +57,10 @@ def constant_time_compare(a, b):
     as a replacement for hmac.compare_digest, which is not available in
     the Python version on Google App Engine 2.7.5.
     """
+    if isinstance(a, str):
+        a = unicode(a)
+    if isinstance(b, str):
+        b = unicode(b)
     for T in (bytes, unicode):
         if isinstance(a, T) and isinstance(b, T):
             break
