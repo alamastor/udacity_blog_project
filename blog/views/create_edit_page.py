@@ -1,8 +1,8 @@
-from base import Handler, AuthHandler
+from base import BaseHandler
 from models.blog_post import blog_key, BlogPost
 
 
-class CreateOrEditBlogPostPage(Handler, AuthHandler):
+class CreateOrEditBlogPostPage(BaseHandler):
 
     def get(self, post_id=None):
         if self.user:

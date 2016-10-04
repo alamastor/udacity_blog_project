@@ -1,10 +1,10 @@
 import re
 
-from base import Handler, AuthHandler
+from base import BaseHandler
 from utils import auth
 
 
-class SignUpPage(Handler, AuthHandler):
+class SignUpPage(BaseHandler):
     USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
     PW_RE = re.compile(r'^.{3,20}$')
     EMAIL_RE = re.compile(r'^[\S]+@[\S]+.[\S]+$')

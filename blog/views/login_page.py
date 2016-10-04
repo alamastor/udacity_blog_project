@@ -1,9 +1,9 @@
-from base import Handler, AuthHandler
+from base import BaseHandler
 from models.user import User
 from utils import auth
 
 
-class LoginPage(Handler, AuthHandler):
+class LoginPage(BaseHandler):
 
     def get(self):
         redirect_cookie = self.request.cookies.get('after_login')

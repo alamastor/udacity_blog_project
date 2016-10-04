@@ -1,11 +1,11 @@
 from datetime import datetime
 
-from base import Handler, AuthHandler
+from base import BaseHandler
 from models.comment import Comment
 from models.blog_post import blog_key, BlogPost
 
 
-class CommentPage(Handler, AuthHandler):
+class CommentPage(BaseHandler):
 
     def __init__(self, *args, **kwargs):
         self._blog_post = None

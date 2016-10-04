@@ -1,7 +1,7 @@
-from base import Handler, AuthHandler
+from base import BaseHandler
 
 
-class WelcomePage(Handler, AuthHandler):
+class WelcomePage(BaseHandler):
 
     def get(self):
         if self.user:

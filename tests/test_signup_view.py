@@ -106,6 +106,6 @@ def test_valid_post_calls_create_user(testapp, mocker):
 
 
 def test_valid_post_calls_login(testapp, mocker):
-    mock_login = mocker.patch('views.signup_page.AuthHandler.log_user_in')
+    mock_login = mocker.patch('views.signup_page.BaseHandler.log_user_in')
     valid_post(testapp)
     mock_login.assert_called_once()

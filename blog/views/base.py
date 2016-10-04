@@ -14,7 +14,12 @@ jinja_env = jinja2.Environment(
 )
 
 
-class Handler(webapp2.RequestHandler):
+class BaseHandler(webapp2.RequestHandler):
+
+    def initialize(self, *args, **kwargs):
+        super(BaseHandler, self).initialize(*args, **kwargs)
+        user_id = self.read_secure_cookie('sess')
+        self.user = user_id and User.get_by_id(int(user_id))
 
     def write(self, *args, **kwargs):
         self.response.write(*args, **kwargs)
@@ -32,14 +37,6 @@ class Handler(webapp2.RequestHandler):
     def redirect_to_login(self):
         self.set_cookie('after_login', self.request.url)
         self.redirect('/login')
-
-
-class AuthHandler(webapp2.RequestHandler):
-
-    def initialize(self, *args, **kwargs):
-        super(AuthHandler, self).initialize(*args, **kwargs)
-        user_id = self.read_secure_cookie('sess')
-        self.user = user_id and User.get_by_id(int(user_id))
 
     def set_secure_cookie(self, name, val):
         secured_val = '%s|%s' % (val, auth.make_secure_val(val))

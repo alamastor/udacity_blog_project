@@ -51,7 +51,7 @@ def mock_non_existant_User(mocker):
 
 @pytest.fixture
 def mock_login(mocker):
-    return mocker.patch('views.login_page.AuthHandler.log_user_in')
+    return mocker.patch('views.login_page.BaseHandler.log_user_in')
 
 
 def test_login_page_returns_200(testapp):

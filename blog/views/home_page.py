@@ -1,10 +1,10 @@
 from google.appengine.datastore.datastore_query import Cursor
 
-from base import Handler, AuthHandler
+from base import BaseHandler
 from models.blog_post import blog_key, BlogPost
 
 
-class HomePage(Handler, AuthHandler):
+class HomePage(BaseHandler):
 
     def get(self):
         cur = Cursor(urlsafe=self.request.get('cur'))

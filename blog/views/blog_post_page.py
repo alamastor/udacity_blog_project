@@ -1,13 +1,13 @@
 import re
 from datetime import datetime
 
-from base import Handler, AuthHandler
+from base import BaseHandler
 from models.like import Like
 from models.comment import Comment
 from models.blog_post import blog_key, BlogPost
 
 
-class BlogPostPage(Handler, AuthHandler):
+class BlogPostPage(BaseHandler):
     TITLE_RE = re.compile(r'^.{4,80}')
     CONTENT_RE = re.compile(r'^[\S\s]{4,}')
 
