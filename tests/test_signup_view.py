@@ -100,7 +100,7 @@ def test_valid_post_redirects_to_welcome(testapp):
 
 
 def test_valid_post_calls_create_user(testapp, mocker):
-    mock_create_user = mocker.patch('auth.create_user')
+    mock_create_user = mocker.patch('utils.auth.create_user')
     valid_post(testapp)
     mock_create_user.assert_called_once()
 

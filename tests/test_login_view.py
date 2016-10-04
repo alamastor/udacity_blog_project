@@ -4,7 +4,7 @@ import pytest
 
 from models.user import User
 from models.blog_post import BlogPost
-from blog import auth
+from blog.utils import auth
 import views_base
 from views_base import testapp, fake_user
 

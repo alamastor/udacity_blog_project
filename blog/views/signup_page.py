@@ -1,7 +1,7 @@
 import re
 
 from base import Handler, AuthHandler
-import auth
+from utils import auth
 
 
 class SignUpPage(Handler, AuthHandler):

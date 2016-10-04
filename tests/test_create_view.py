@@ -2,7 +2,7 @@ import pytest
 from webtest import AppError
 
 from views_base import testapp, fake_user
-from blog import auth
+from blog.utils import auth
 
 
 @pytest.fixture

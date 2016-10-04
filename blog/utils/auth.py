@@ -7,7 +7,7 @@ import binascii
 from models.user import User
 
 config = SafeConfigParser()
-config.read(os.path.join(os.path.dirname(__file__), 'auth.cfg'))
+config.read(os.path.join(os.path.dirname(__file__), '..', 'auth.cfg'))
 HMAC_SESSION_KEY = config.get('Keys', 'session')
 
 

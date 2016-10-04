@@ -1,6 +1,6 @@
 from base import Handler, AuthHandler
 from models.user import User
-import auth
+from utils import auth
 
 
 class LoginPage(Handler, AuthHandler):

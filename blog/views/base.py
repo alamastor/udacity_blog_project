@@ -3,7 +3,7 @@ import os
 import webapp2
 import jinja2
 
-import auth
+from utils import auth
 from models.user import User
 
 

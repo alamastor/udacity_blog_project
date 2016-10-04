@@ -7,7 +7,7 @@ import webapp2
 
 from main import ROUTER
 from models.user import User
-import auth
+from utils import auth
 
 
 @pytest.fixture

@@ -9,7 +9,7 @@ import views_base
 from views_base import (
     testapp, fake_user, mock_BlogPost, mock_comments, mock_Like
 )
-from blog import auth
+from blog.utils import auth
 
 
 def mock_Comment(mocker, comment, user_id, comment_id=0):

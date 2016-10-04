@@ -1,6 +1,6 @@
 import pytest
 
-from blog import auth
+from blog.utils import auth
 
 
 def test_make_pw_hash_returns_256_bit_str():
@@ -27,7 +27,7 @@ def test_check_secure_val_returns_false_for_invalid_input():
 
 @pytest.fixture
 def mock_User(mocker):
-    mock_User = mocker.patch('blog.auth.User', autospec=True)
+    mock_User = mocker.patch('blog.utils.auth.User', autospec=True)
     mock_User.return_value.key.id = mocker.Mock(return_value=100)
 
     return mock_User
@@ -46,7 +46,7 @@ def test_create_user_does_not_call_User_with_raw_pass(mock_User):
 
 
 def test_create_user_calls_make_salt(mocker, mock_User):
-    mock_make_salt = mocker.patch('blog.auth.make_salt')
+    mock_make_salt = mocker.patch('blog.utils.auth.make_salt')
     mock_make_salt.return_value = '1'
 
     auth.create_user('user', 'pass')
@@ -63,8 +63,8 @@ def test_make_salt_calls_os_urandom(mocker):
 
 
 def test_create_user_calls_make_pw_hash_with_correct_args(mocker, mock_User):
-    mock_pw_hash = mocker.patch('blog.auth.make_pw_hash')
-    mock_salt = mocker.patch('blog.auth.make_salt').return_value
+    mock_pw_hash = mocker.patch('blog.utils.auth.make_pw_hash')
+    mock_salt = mocker.patch('blog.utils.auth.make_salt').return_value
 
     auth.create_user('user', 'pass')
 
@@ -72,7 +72,7 @@ def test_create_user_calls_make_pw_hash_with_correct_args(mocker, mock_User):
 
 
 def test_create_user_calls_User_with_email_if_arg(mocker, mock):
-    mock_User = mocker.patch('blog.auth.User')
+    mock_User = mocker.patch('blog.utils.auth.User')
 
     auth.create_user('user', 'pass', 'a@b.com')
 

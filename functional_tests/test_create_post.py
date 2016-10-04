@@ -2,7 +2,7 @@ from datetime import datetime
 
 import base
 from base import run_app, browser
-from blog import auth
+from blog.utils import auth
 from pages import HomePage, LoginPage, CreatePage, BlogPostPage, WelcomePage
 
 

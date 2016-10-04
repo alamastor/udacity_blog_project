@@ -6,7 +6,7 @@ import pytest
 import requests
 from bs4 import BeautifulSoup
 
-from blog import auth
+from blog.utils import auth
 
 MAIN_PAGE_URL = 'http://localhost:8080'
 
