@@ -13,7 +13,9 @@ from blog import auth
 
 
 def mock_Comment(mocker, comment, user_id, comment_id=0):
-    mock_Comment = mocker.patch('views.views.Comment', autospec=True)
+    mock_Comment_post_page = mocker.patch('views.blog_post_page.Comment', autospec=True)
+    mock_Comment_comment_page = mocker.patch('views.comment_page.Comment', autospec=True)
+    mock_Comment_views = mocker.patch('views.views.Comment', autospec=True)
     key = mocker.Mock()
     key.id.return_value = comment_id
     mock_comment = mocker.Mock()
@@ -23,8 +25,14 @@ def mock_Comment(mocker, comment, user_id, comment_id=0):
     type(mock_comment).datetime = datetime.now()
     type(mock_comment).key = key
 
-    mock_Comment.get_by_id_and_post_key.return_value = mock_comment
-    mock_Comment.get_by_post_key.return_value = [mock_comment]
+    mock_Comment_post_page.get_by_id_and_post_key.return_value = mock_comment
+    mock_Comment_post_page.get_by_post_key.return_value = [mock_comment]
+
+    mock_Comment_comment_page.get_by_id_and_post_key.return_value = mock_comment
+    mock_Comment_comment_page.get_by_post_key.return_value = [mock_comment]
+
+    mock_Comment_views.get_by_id_and_post_key.return_value = mock_comment
+    mock_Comment_views.get_by_post_key.return_value = [mock_comment]
 
     return mock_comment
 
@@ -120,7 +128,7 @@ def logged_in_post_comment(testapp, post_id, user_id, comment, comment_id=None):
 def test_post_comment_calls_Comment(
     testapp, fake_user, mock_BlogPost, mocker, mock
 ):
-    mock_Comment = mocker.patch('views.views.Comment', autospec=True)
+    mock_Comment = mocker.patch('views.comment_page.Comment', autospec=True)
 
     user_id = fake_user.key.id()
     post_id = mock_BlogPost.key.id()
@@ -137,7 +145,7 @@ def test_post_comment_calls_Comment(
 def test_logged_in_post_comment_redirects_to_post(
     testapp, fake_user, mock_BlogPost, mocker
 ):
-    mock_Comment = mocker.patch('views.views.Comment', autospec=True)
+    mock_Comment = mocker.patch('views.comment_page.Comment', autospec=True)
 
     user_id = fake_user.key.id()
     post_id = mock_BlogPost.key.id()
@@ -193,7 +201,7 @@ def test_get_comment_with_nonexistant_id_returns_404(
     user_id = fake_user.key.id()
     post_id = mock_BlogPost.key.id()
 
-    mock_Comment = mocker.patch('views.views.Comment', autospec=True)
+    mock_Comment = mocker.patch('views.comment_page.Comment', autospec=True)
     mock_Comment.get_by_id_and_post_key.return_value = None
     with pytest.raises(AppError) as excinfo:
         response = logged_in_get_comment_page(testapp, user_id, post_id, 1)

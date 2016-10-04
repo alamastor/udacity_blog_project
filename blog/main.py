@@ -1,9 +1,14 @@
 import webapp2
 
-from views.views import (
-    HomePage, BlogPostPage, LoginPage, SignUpPage, CommentPage,
-    CreateOrEditBlogPostPage, LogoutHandler, WelcomePage
-)
+from views.home_page import HomePage
+from views.blog_post_page import BlogPostPage
+from views.create_edit_page import CreateOrEditBlogPostPage
+from views.login_page import LoginPage
+from views.signup_page import SignUpPage
+from views.welcome_page import WelcomePage
+from views.comment_page import CommentPage
+from views.logout_handler import LogoutHandler
+
 
 ROUTER = [
     ('/', HomePage),

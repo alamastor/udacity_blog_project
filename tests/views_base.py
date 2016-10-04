@@ -35,7 +35,11 @@ def fake_user():
 
 @pytest.fixture
 def mock_BlogPost(mocker, user_id=2):
-    mocked_BlogPost = mocker.patch('views.views.BlogPost', autospec=True)
+    # Patch this for differect tests that use it.
+    mocked_BlogPost_post_page = mocker.patch('views.blog_post_page.BlogPost', autospec=True)
+    mocked_BlogPost_create_edit_page = mocker.patch('views.create_edit_page.BlogPost', autospec=True)
+    mocked_BlogPost_comment_page = mocker.patch('views.comment_page.BlogPost', autospec=True)
+    mocked_BlogPost_views = mocker.patch('views.views.BlogPost', autospec=True)
     mock_post = mocker.Mock()
     key = mocker.Mock(return_value='A1')
     key.id = mocker.Mock(return_value=1)
@@ -46,7 +50,10 @@ def mock_BlogPost(mocker, user_id=2):
     type(mock_post).key = key
     type(mock_post).user_id = user_id
 
-    mocked_BlogPost.get_by_id.return_value = mock_post
+    mocked_BlogPost_post_page.get_by_id.return_value = mock_post
+    mocked_BlogPost_create_edit_page.get_by_id.return_value = mock_post
+    mocked_BlogPost_comment_page.get_by_id.return_value = mock_post
+    mocked_BlogPost_views.get_by_id.return_value = mock_post
     return mock_post
 
 
@@ -76,7 +83,7 @@ def mock_comments(mocker):
     Comment = namedtuple('Comment', [
         'comment', 'paragraphs', 'datetime', 'formatted_date', 'username'
     ])
-    mocked_Comment = mocker.patch('views.views.Comment', autospec=True)
+    mocked_Comment = mocker.patch('views.blog_post_page.Comment', autospec=True)
     mocked_Comment.get_by_post_key.return_value = [
         Comment('A comment', ['A comment'], datetime(2014, 1, 1), '1-Jan-2014', 'A user'),
         Comment('B comment', ['B comment'], datetime(2015, 1, 1), '1-Jan-2015', 'B user'),
@@ -86,11 +93,13 @@ def mock_comments(mocker):
 
 @pytest.fixture
 def mock_Like(mocker):
-    mocked_Like = mocker.patch('views.views.Like', autospec=True)
+    mocked_Like_post_page = mocker.patch('views.blog_post_page.Like', autospec=True)
+    mocked_Like_views = mocker.patch('views.views.Like', autospec=True)
     mock_like = mocker.Mock()
     type(mock_like).put = mocker.Mock()
-    mocked_Like.return_value = mock_like
-    return mocked_Like
+    mocked_Like_post_page.return_value = mock_like
+    mocked_Like_views.return_value = mock_like
+    return mocked_Like_post_page
 
 
 def cookie_set(response, cookie_name, cookie_val):
