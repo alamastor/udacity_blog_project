@@ -41,13 +41,9 @@ class AuthHandler(webapp2.RequestHandler):
         user_id = self.read_secure_cookie('sess')
         self.user = user_id and User.get_by_id(int(user_id))
 
-    # TODO: Make more general
     def set_secure_cookie(self, name, val):
-        self.response.set_cookie(
-            'sess',
-            '%s|%s' % (name, val),
-            path='/'
-        )
+        secured_val = '%s|%s' % (val, auth.make_secure_val(val))
+        self.response.set_cookie(name, secured_val, path='/')
 
     def read_secure_cookie(self, name):
         cookie = self.request.cookies.get(name)
@@ -57,4 +53,4 @@ class AuthHandler(webapp2.RequestHandler):
                 return val
 
     def log_user_in(self, user_id):
-        self.set_secure_cookie(user_id, auth.make_secure_val(user_id))
+        self.set_secure_cookie('sess', user_id)
