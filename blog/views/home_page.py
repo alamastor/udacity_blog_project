@@ -1,7 +1,7 @@
 from google.appengine.datastore.datastore_query import Cursor
 
 from base import Handler, AuthHandler
-from models.models import blog_key, BlogPost
+from models.blog_post import blog_key, BlogPost
 
 
 class HomePage(Handler, AuthHandler):

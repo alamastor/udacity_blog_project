@@ -1,5 +1,5 @@
 from base import Handler, AuthHandler
-from models.models import User
+from models.user import User
 import auth
 
 
