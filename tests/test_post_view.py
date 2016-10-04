@@ -15,7 +15,6 @@ from blog import auth
 def mock_Comment(mocker, comment, user_id, comment_id=0):
     mock_Comment_post_page = mocker.patch('views.blog_post_page.Comment', autospec=True)
     mock_Comment_comment_page = mocker.patch('views.comment_page.Comment', autospec=True)
-    mock_Comment_views = mocker.patch('views.views.Comment', autospec=True)
     key = mocker.Mock()
     key.id.return_value = comment_id
     mock_comment = mocker.Mock()
@@ -30,9 +29,6 @@ def mock_Comment(mocker, comment, user_id, comment_id=0):
 
     mock_Comment_comment_page.get_by_id_and_post_key.return_value = mock_comment
     mock_Comment_comment_page.get_by_post_key.return_value = [mock_comment]
-
-    mock_Comment_views.get_by_id_and_post_key.return_value = mock_comment
-    mock_Comment_views.get_by_post_key.return_value = [mock_comment]
 
     return mock_comment
 

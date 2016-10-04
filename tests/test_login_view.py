@@ -13,7 +13,7 @@ def mock_valid_User(mocker, mock):
     User = namedtuple('User', ['username', 'password'])
     mock_user = User('Billy_Bob', '!Password')
     DbUser = namedtuple('DbUser', ['username', 'pw_hash', 'salt', 'key'])
-    mocked_get_by_username = mocker.patch('views.views.User.get_by_username')
+    mocked_get_by_username = mocker.patch('views.login_page.User.get_by_username')
     mock_key = mock
     mock_key.id = mocker.Mock(return_value=1)
     mocked_get_by_username.return_value = DbUser(
@@ -30,7 +30,7 @@ def mock_invalid_User(mocker):
     User = namedtuple('User', ['username', 'password'])
     mock_user = User('Billy_Bob', '!Password')
     DbUser = namedtuple('DbUser', ['username', 'pw_hash', 'salt'])
-    mocked_get_by_username = mocker.patch('views.views.User.get_by_username')
+    mocked_get_by_username = mocker.patch('views.login_page.User.get_by_username')
     mocked_get_by_username.return_value = DbUser(
         mock_user.username,
         'ea6b636e740f821220fe50263f127519a5185fe875df414bbe6b00de21a5b281',
@@ -43,14 +43,14 @@ def mock_invalid_User(mocker):
 def mock_non_existant_User(mocker):
     User = namedtuple('User', ['username', 'password'])
     mock_user = User('Billy_Bob', '!passwrd')
-    mocked_query_by_username = mocker.patch('views.views.User.get_by_username')
+    mocked_query_by_username = mocker.patch('views.login_page.User.get_by_username')
     mocked_query_by_username.return_value = None
     return mock_user
 
 
 @pytest.fixture
 def mock_login(mocker):
-    return mocker.patch('views.views.AuthHandler.log_user_in')
+    return mocker.patch('views.login_page.AuthHandler.log_user_in')
 
 
 def test_login_page_returns_200(testapp):

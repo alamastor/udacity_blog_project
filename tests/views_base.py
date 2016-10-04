@@ -39,7 +39,6 @@ def mock_BlogPost(mocker, user_id=2):
     mocked_BlogPost_post_page = mocker.patch('views.blog_post_page.BlogPost', autospec=True)
     mocked_BlogPost_create_edit_page = mocker.patch('views.create_edit_page.BlogPost', autospec=True)
     mocked_BlogPost_comment_page = mocker.patch('views.comment_page.BlogPost', autospec=True)
-    mocked_BlogPost_views = mocker.patch('views.views.BlogPost', autospec=True)
     mock_post = mocker.Mock()
     key = mocker.Mock(return_value='A1')
     key.id = mocker.Mock(return_value=1)
@@ -53,7 +52,6 @@ def mock_BlogPost(mocker, user_id=2):
     mocked_BlogPost_post_page.get_by_id.return_value = mock_post
     mocked_BlogPost_create_edit_page.get_by_id.return_value = mock_post
     mocked_BlogPost_comment_page.get_by_id.return_value = mock_post
-    mocked_BlogPost_views.get_by_id.return_value = mock_post
     return mock_post
 
 
@@ -93,13 +91,11 @@ def mock_comments(mocker):
 
 @pytest.fixture
 def mock_Like(mocker):
-    mocked_Like_post_page = mocker.patch('views.blog_post_page.Like', autospec=True)
-    mocked_Like_views = mocker.patch('views.views.Like', autospec=True)
+    mocked_Like = mocker.patch('views.blog_post_page.Like', autospec=True)
     mock_like = mocker.Mock()
     type(mock_like).put = mocker.Mock()
-    mocked_Like_post_page.return_value = mock_like
-    mocked_Like_views.return_value = mock_like
-    return mocked_Like_post_page
+    mocked_Like.return_value = mock_like
+    return mocked_Like
 
 
 def cookie_set(response, cookie_name, cookie_val):

@@ -9,7 +9,7 @@ from views_base import testapp
 @pytest.fixture
 def mock_BlogPost_query(mocker):
     BlogPost = namedtuple('BlogPost', ['title', 'content', 'datetime', 'key'])
-    mocked_query = mocker.patch('blog.views.views.BlogPost.query')
+    mocked_query = mocker.patch('views.home_page.BlogPost.query')
     keyId1 = mocker.Mock()
     keyId1.id = mocker.Mock(return_value=1)
     keyId2 = mocker.Mock()
@@ -23,7 +23,7 @@ def mock_BlogPost_query(mocker):
 @pytest.fixture
 def mock_BlogPost_query_many_posts(mocker):
     BlogPost = namedtuple('BlogPost', ['title', 'content', 'datetime', 'key'])
-    mocked_query = mocker.patch('blog.views.views.BlogPost.query')
+    mocked_query = mocker.patch('views.home_page.BlogPost.query')
     keyId1 = mocker.Mock()
     keyId1.id = mocker.Mock(return_value=1)
     keyId2 = mocker.Mock()
