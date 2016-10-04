@@ -16,34 +16,40 @@ jinja_env = jinja2.Environment(
 
 
 class BaseHandler(webapp2.RequestHandler):
+    ''' Base request handler class, other handlers should inherit from this.
+    '''
 
     def initialize(self, *args, **kwargs):
         super(BaseHandler, self).initialize(*args, **kwargs)
+        # Set user from cookie if present.
         user_id = self.read_secure_cookie('sess')
         self.user = user_id and User.get_by_id(int(user_id))
 
-    def write(self, *args, **kwargs):
-        self.response.write(*args, **kwargs)
-
     def render_str(self, template, **kwargs):
+        ''' Render a jinja2 template as html string.
+        '''
         t = jinja_env.get_template(template)
         return t.render(kwargs)
 
     def render(self, template, **kwargs):
-        self.write(self.render_str(template, **kwargs))
+        ''' Write a jinja2 template to the HTTP response.
+        '''
+        self.response.write(self.render_str(template, **kwargs))
 
     def set_cookie(self, name, val):
+        ''' Set a cookie in the HTTP response.
+        '''
         self.response.set_cookie(name, val, path='/')
 
-    def redirect_to_login(self):
-        self.set_cookie('after_login', self.request.url)
-        self.redirect('/login')
-
     def set_secure_cookie(self, name, val):
+        ''' Set a cookie in the HTTP response with with secure hash attached.
+        '''
         secured_val = '%s|%s' % (val, auth.make_secure_val(val))
         self.response.set_cookie(name, secured_val, path='/')
 
     def read_secure_cookie(self, name):
+        ''' Read a cookie from a HTTP request with secure hash attached.
+        '''
         cookie = self.request.cookies.get(name)
         if cookie:
             val, digest = cookie.split('|')
@@ -51,7 +57,17 @@ class BaseHandler(webapp2.RequestHandler):
                 return val
 
     def log_user_in(self, user_id):
+        ''' Log a user in by setting session cookie.
+        '''
         self.set_secure_cookie('sess', user_id)
+
+    def redirect_to_login(self):
+        ''' Set HTTP response to redirect to login page, and set a cookie
+        that will cause login page to redirect back to current page after
+        login.
+        '''
+        self.set_cookie('after_login', self.request.url)
+        self.redirect('/login')
 
     @staticmethod
     def login_required(abort=None):
