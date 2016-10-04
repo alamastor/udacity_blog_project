@@ -1,3 +1,4 @@
+from functools import wraps
 import os
 
 import webapp2
@@ -51,3 +52,31 @@ class BaseHandler(webapp2.RequestHandler):
 
     def log_user_in(self, user_id):
         self.set_secure_cookie('sess', user_id)
+
+    @staticmethod
+    def login_required(abort=None):
+        ''' Decorator method for adding automatic handling of logged out users
+        on handler methods.
+
+        Will redirect to login page if called with no arguments:
+        @login_required()
+        def get(self):
+            pass
+
+        Will abort with passed error if called with abort argument:
+        @login_required(abort=401)
+        def get(self):
+            pass
+        '''
+        def login_required_decorator(method):
+            @wraps(method)
+            def wrapped_method(self, *args, **kwargs):
+                if not self.user:
+                    if abort:
+                        self.abort(abort)
+                    else:
+                        self.redirect_to_login()
+                else:
+                    return method(self, *args, **kwargs)
+            return wrapped_method
+        return login_required_decorator

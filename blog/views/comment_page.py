@@ -11,6 +11,7 @@ class CommentPage(BaseHandler):
         self._blog_post = None
         super(self.__class__, self).__init__(*args, **kwargs)
 
+    @BaseHandler.login_required(abort=401)
     def get(self, post_id, comment_id=None):
         self.post_id = int(post_id)
         if comment_id:
@@ -18,41 +19,36 @@ class CommentPage(BaseHandler):
         else:
             self.comment_id = None
 
-        if self.user:
-            self.render(
-                'comment.html',
-                user=self.user,
-                comment=self.get_comment(),
-                post_id=self.post_id
-            )
-        else:
-            self.abort(401)
+        self.render(
+            'comment.html',
+            user=self.user,
+            comment=self.get_comment(),
+            post_id=self.post_id
+        )
 
+    @BaseHandler.login_required(abort=401)
     def post(self, post_id, comment_id=None):
-        if self.user:
-            self.post_id = int(post_id)
-            if comment_id:
-                self.comment_id = int(comment_id)
-            else:
-                self.comment_id = None
-
-            if self.request.get('delete') == 'delete':
-                self.delete()
-            else:
-                comment_text = self.request.get('comment')
-                if comment_text:
-                    self.create_or_update_comment(comment_text)
-                    self.redirect('/post/%i' % self.post_id)
-                else:
-                    error = 'Comment cannot be empty.'
-                    self.render(
-                        'comment.html',
-                        user=self.user,
-                        comment=comment_text,
-                        error=error
-                    )
+        self.post_id = int(post_id)
+        if comment_id:
+            self.comment_id = int(comment_id)
         else:
-            self.abort(401)
+            self.comment_id = None
+
+        if self.request.get('delete') == 'delete':
+            self.delete()
+        else:
+            comment_text = self.request.get('comment')
+            if comment_text:
+                self.create_or_update_comment(comment_text)
+                self.redirect('/post/%i' % self.post_id)
+            else:
+                error = 'Comment cannot be empty.'
+                self.render(
+                    'comment.html',
+                    user=self.user,
+                    comment=comment_text,
+                    error=error
+                )
 
     def create_or_update_comment(self, comment_text):
         comment = self.get_comment()

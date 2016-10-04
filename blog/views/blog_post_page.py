@@ -33,34 +33,21 @@ class BlogPostPage(BaseHandler):
         else:
             self.abort(404)
 
+    @BaseHandler.login_required()
     def post(self, post_id=None):
-        if self.user:
-            if post_id:
-                self.post_id = int(post_id)
-            else:
-                self.post_id = None
-
-            delete_req = self.request.get('delete')
-            like_req = self.request.get('like')
-
-            if delete_req:
-                if delete_req == 'delete':
-                    self.delete()
-                else:
-                    self.abort(400)
-            elif like_req:
-                if like_req == 'like':
-                    self.like()
-                elif like_req == 'unlike':
-                    self.unlike()
-                else:
-                    self.abort(400)
-            elif self.post_id:
-                self.update_blog_post()
-            else:
-                self.create_blog_post()
+        if post_id:
+            self.post_id = int(post_id)
         else:
-            self.redirect('/login')
+            self.post_id = None
+
+        if self.request.get('delete'):
+            self.handle_delete_request()
+        elif self.request.get('like'):
+            self.handle_like_request()
+        elif self.post_id:
+            self.update_blog_post()
+        else:
+            self.create_blog_post()
 
     def get_post(self):
         if self.post_id:
@@ -73,13 +60,19 @@ class BlogPostPage(BaseHandler):
 
         return post
 
-    def delete(self):
-        post = self.get_post()
-        if post.user_id != self.user.key.id():
-            self.abort(403)
+    def handle_delete_request(self):
+        if self.request.get('delete') != 'delete':
+            self.abort(400)
+        self.delete()
 
-        post.key.delete()
-        self.redirect('/')
+    def handle_like_request(self):
+        like_req = self.request.get('like')
+        if like_req == 'like':
+            self.like()
+        elif like_req == 'unlike':
+            self.unlike()
+        else:
+            self.abort(400)
 
     def create_blog_post(self):
         title = self.request.get('title')
@@ -140,6 +133,14 @@ class BlogPostPage(BaseHandler):
             return True
         else:
             return False
+
+    def delete(self):
+        post = self.get_post()
+        if post.user_id != self.user.key.id():
+            self.abort(403)
+
+        post.key.delete()
+        self.redirect('/')
 
     def like(self):
         if self.is_blog_post_creator:

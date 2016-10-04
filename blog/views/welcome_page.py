@@ -3,9 +3,7 @@ from base import BaseHandler
 
 class WelcomePage(BaseHandler):
 
+    @BaseHandler.login_required()
     def get(self):
-        if self.user:
-            after_login_link = self.request.cookies.get('after_login')
-            self.render('welcome.html', user=self.user, after_login=after_login_link)
-        else:
-            self.redirect('/login')
+        after_login_link = self.request.cookies.get('after_login')
+        self.render('welcome.html', user=self.user, after_login=after_login_link)
