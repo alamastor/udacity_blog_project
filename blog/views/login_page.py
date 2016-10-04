@@ -20,7 +20,7 @@ class LoginPage(Handler, AuthHandler):
         valid_user = False
         if user:
             pw_hash = auth.make_pw_hash(username, password, user.salt)
-            if user.pw_hash == pw_hash:
+            if auth.constant_time_compare(user.pw_hash, pw_hash):
                 valid_user = True
 
         if valid_user:
