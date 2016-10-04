@@ -4,7 +4,7 @@ import webapp2
 import jinja2
 
 import auth
-from models import User
+from models.models import User
 
 
 template_dir = os.path.join(os.path.dirname(__file__), '..', 'templates')

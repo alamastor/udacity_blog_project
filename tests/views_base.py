@@ -6,7 +6,7 @@ import webtest
 import webapp2
 
 from main import ROUTER
-from models import User
+from models.models import User
 import auth
 
 

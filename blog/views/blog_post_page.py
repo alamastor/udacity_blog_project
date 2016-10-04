@@ -2,7 +2,7 @@ import re
 from datetime import datetime
 
 from base import Handler, AuthHandler
-from models import blog_key, BlogPost, Comment, Like
+from models.models import blog_key, BlogPost, Comment, Like
 
 
 class BlogPostPage(Handler, AuthHandler):

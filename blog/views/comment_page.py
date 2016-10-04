@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from base import Handler, AuthHandler
-from models import blog_key, Comment, BlogPost
+from models.models import blog_key, Comment, BlogPost
 
 
 class CommentPage(Handler, AuthHandler):

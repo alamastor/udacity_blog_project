@@ -2,7 +2,7 @@ from collections import namedtuple
 
 import pytest
 
-from models import BlogPost, User
+from models.models import BlogPost, User
 from blog import auth
 import views_base
 from views_base import testapp, fake_user

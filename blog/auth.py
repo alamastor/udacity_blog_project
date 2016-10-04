@@ -4,7 +4,7 @@ from ConfigParser import SafeConfigParser
 import os
 import binascii
 
-from models import User
+from models.models import User
 
 config = SafeConfigParser()
 config.read(os.path.join(os.path.dirname(__file__), 'auth.cfg'))

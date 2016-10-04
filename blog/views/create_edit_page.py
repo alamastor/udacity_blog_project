@@ -1,5 +1,5 @@
 from base import Handler, AuthHandler
-from models import blog_key, BlogPost
+from models.models import blog_key, BlogPost
 
 
 class CreateOrEditBlogPostPage(Handler, AuthHandler):
