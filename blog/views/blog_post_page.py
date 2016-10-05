@@ -14,6 +14,11 @@ class BlogPostPage(BaseHandler):
     TITLE_RE = re.compile(r'^.{4,80}')
     CONTENT_RE = re.compile(r'^[\S\s]{4,}')
 
+    def __init__(self, request, response):
+        super(BlogPostPage, self).__init__(request, response)
+        # Property method caches.
+        self._blog_post = None
+
     def get(self, blog_post_id):
         ''' Return response with full blog post, comments and likes.
         '''
@@ -62,12 +67,14 @@ class BlogPostPage(BaseHandler):
     def blog_post(self):
         ''' Get blog post model object from id, will return None if id is None.
         '''
-        if self.blog_post_id:
-            blog_post = BlogPost.get_by_id(self.blog_post_id, parent=blog_key())
+        if not self._blog_post:
+            if self.blog_post_id:
+                blog_post = BlogPost.get_by_id(self.blog_post_id, parent=blog_key())
 
-            if not blog_post:
-                self.abort(404)
-            return blog_post
+                if not blog_post:
+                    self.abort(404)
+                self._blog_post = blog_post
+        return self._blog_post
 
     def handle_delete_request(self):
         ''' Delete blog post if the delete post had value delete.
