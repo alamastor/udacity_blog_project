@@ -127,7 +127,7 @@ def test_post_to_post_edit_page_calls_put(testapp, fake_user, mocker):
     mock_post.put.assert_called_once()
 
 
-def test_post_with_invalid_title_shows_error(testapp, fake_user, mocker):
+def test_post_with_invalid_title_redirects_to_edit(testapp, fake_user, mocker):
     user_id = fake_user.key.id()
     mock_post = mock_BlogPost(mocker, user_id)
     post_id = mock_post.key.id()
@@ -137,10 +137,11 @@ def test_post_with_invalid_title_shows_error(testapp, fake_user, mocker):
         user_id,
         {'title': 'zx', 'content': 'asdfasdf afdsasdfasdf asdfadsf'}
     )
-    assert 'Invalid title' in response.normal_body
+    assert response.status_int == 302
+    assert response.location.split('/')[-1].split('?')[0] == 'edit'
 
 
-def test_post_with_invalid_content_shows_error(testapp, fake_user, mocker):
+def test_post_with_invalid_content_redirects_to_error(testapp, fake_user, mocker):
     user_id = fake_user.key.id()
     mock_post = mock_BlogPost(mocker, user_id)
     post_id = mock_post.key.id()
@@ -150,7 +151,8 @@ def test_post_with_invalid_content_shows_error(testapp, fake_user, mocker):
         user_id,
         {'title': 'zxasdfas', 'content': 'asd'}
     )
-    assert 'Invalid content' in response.normal_body
+    assert response.status_int == 302
+    assert response.location.split('/')[-1].split('?')[0] == 'edit'
 
 
 def test_valid_post_redirects_to_post_page(testapp, fake_user, mocker):

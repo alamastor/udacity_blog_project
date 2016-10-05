@@ -6,9 +6,9 @@ from blog.utils import auth
 
 
 @pytest.fixture
-def get_create_logged_in(testapp, fake_user):
+def get_create_logged_in(testapp, fake_user, query={}):
     user_id = fake_user.key.id()
-    return testapp.get('/post/create', headers={
+    return testapp.get('/post/create', query, headers={
         'Cookie': 'sess=%s|%s; Path=/' % (
             user_id, auth.make_secure_val(user_id)
         )
@@ -48,23 +48,25 @@ def test_post_by_logged_out_user_redirects_to_login(testapp):
     assert response.location.split('/')[-1] == 'login'
 
 
-def test_post_with_invalid_title_shows_error(testapp, fake_user):
+def test_post_with_invalid_title_redirects_create(testapp, fake_user):
     response = post_logged_in(testapp, fake_user, {
         'title': 'zx', 'content': 'asdfasdf afdsasdfasdf asdfadsf'
     })
-    assert 'Invalid title' in response.normal_body
+    assert response.status_int == 302
+    assert response.location.split('/')[-1].split('?')[0] == 'create'
 
 
-def test_post_with_invalid_content_shows_error(testapp, fake_user):
+def test_post_with_invalid_content_redirects_to_create(testapp, fake_user):
     response = post_logged_in(testapp, fake_user, {
         'title': 'zxasdfas', 'content': 'asd'
     })
-    assert 'Invalid content' in response.normal_body
+    assert response.status_int == 302
+    assert response.location.split('/')[-1].split('?')[0] == 'create'
 
 
-def test_invalid_post_keeps_content_in_form(testapp, fake_user):
-    response = post_logged_in(testapp, fake_user, {
-        'title': 'axa', 'content': 'qwe'
+def test_get_with_errors_shows_content_in_form(testapp, fake_user):
+    response = get_create_logged_in(testapp, fake_user, {
+        'title': 'axa', 'content': 'qwe', 'error': 'asdf'
     })
     assert 'axa' in response.normal_body
     assert 'qwe' in response.normal_body
