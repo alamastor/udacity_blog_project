@@ -98,7 +98,7 @@ class BlogPostPage(BaseHandler):
 
         errors = self.blog_post_validation_errors(title, content)
         if errors:
-            self.render_post_validation_errors(title, content, errors)
+            self.redirect_with_errors(title, content, errors)
         else:
             blog_post = BlogPost(
                 parent=blog_key(),
@@ -124,7 +124,7 @@ class BlogPostPage(BaseHandler):
 
         errors = self.blog_post_validation_errors(title, content)
         if errors:
-            self.render_post_validation_errors(title, content, errors)
+            self.redirect_with_errors(title, content, errors)
         else:
             blog_post.title = title
             blog_post.content = content
@@ -143,7 +143,9 @@ class BlogPostPage(BaseHandler):
             errors.append('Invalid content')
         return errors
 
-    def render_post_validation_errors(self, title, content, errors):
+    def redirect_with_errors(self, title, content, errors):
+        ''' Redirect to back to create/edit page after invalid post.
+        '''
         if self.blog_post_id:
             url_string = '/post/%i/edit?' % self.blog_post_id
         else:
@@ -156,18 +158,23 @@ class BlogPostPage(BaseHandler):
 
     @property
     def is_blog_post_creator(self):
+        ''' Is current user creator of blog post.
+        '''
         if self.user and self.user.key.id() == self.blog_post.user_id:
             return True
         else:
             return False
 
     def delete(self):
-        if self.blog_post.user_id != self.user.key.id():
+        ''' Delete the blog post.
+        '''
+        if not self.is_blog_post_creator:
             self.abort(403)
-
         self.blog_post.key.delete()
 
     def like(self):
+        ''' Like blog post.
+        '''
         if self.is_blog_post_creator:
             self.abort(403)
 
@@ -177,6 +184,8 @@ class BlogPostPage(BaseHandler):
         Like(parent=self.blog_post.key, user_id=self.user.key.id()).put()
 
     def unlike(self):
+        ''' Unlike blog post.
+        '''
         if self.is_blog_post_creator:
             self.abort(403)
 
@@ -191,6 +200,8 @@ class BlogPostPage(BaseHandler):
 
     @property
     def already_liked_blog_post(self):
+        ''' Has current user already like the post.
+        '''
         likes = Like.get_by_blog_post_id(self.blog_post_id)
         if self.user and self.user.key.id() in [l.user_id for l in likes]:
             return True
@@ -199,4 +210,6 @@ class BlogPostPage(BaseHandler):
 
     @property
     def likes(self):
+        ''' Number of likes post currently has.
+        '''
         return len(Like.get_by_blog_post_id(self.blog_post_id))
