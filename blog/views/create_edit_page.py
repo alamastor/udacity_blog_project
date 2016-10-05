@@ -24,10 +24,10 @@ class CreateOrEditBlogPostPage(BaseHandler):
             content = ''
             errors = []
 
-        if self.request.get('error', allow_multiple=True):
+        if self.request.get_all('error'):
             title = self.request.get('title')
             content = self.request.get('content')
-            errors = self.request.get('error', allow_multiple=True)
+            errors = self.request.get_all('error')
 
         self.render(
             'blog_post_create_edit.html',
