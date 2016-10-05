@@ -17,15 +17,23 @@ class CreateOrEditBlogPostPage(BaseHandler):
 
             title = post.title
             content = post.content
+            errors = []
         else:
             post = None
             title = ''
             content = ''
+            errors = []
+
+        if self.request.get('error', allow_multiple=True):
+            title = self.request.get('title')
+            content = self.request.get('content')
+            errors = self.request.get('error', allow_multiple=True)
 
         self.render(
             'blog_post_create_edit.html',
             post=post,
             title=title,
             content=content,
-            user=self.user
+            user=self.user,
+            errors=errors
         )
