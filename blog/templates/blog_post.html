@@ -1,18 +1,18 @@
 {% extends "base.html" %}
 {% block body %}
   <div class="post__header">
-    <h1 class="post__title">{{ post.title }}</h1>
-    <h3 class="post__date">{{ post.date_str }}</h3>
+    <h1 class="post__title">{{ blog_post.title }}</h1>
+    <h3 class="post__date">{{ blog_post.date_str }}</h3>
   </div>
   {% if is_creator %}
     <div class="post__links">
-      <a class="post__edit" href="/post/{{ post.key.id() }}/edit">Edit</a>
+      <a class="post__edit" href="/post/{{ blog_post.key.id() }}/edit">Edit</a>
       <form method="post">
         <button class="post__delete" name="delete" value="delete">Delete</button>
       </form>
     </div>
   {% endif %}
-  <h2 class="post__user">by {{ post.username }}</h2>
+  <h2 class="post__user">by {{ blog_post.username }}</h2>
   {% if is_creator or already_liked %}
     <div class="post__likes">{{ likes }} Likes</div>
   {% endif %}
@@ -27,7 +27,7 @@
       </form>
     {% endif %}
   {% endif %}
-  {% for para in post.paragraphs %}
+  {% for para in blog_post.paragraphs %}
     <p class="post__content">{{ para }}</p>
   {% endfor %}
   <h2>Comments</h2>
@@ -39,8 +39,8 @@
       </div>
       <div class="comment__links">
         {% if user and user.key.id() == comment.user_id %}
-          <a class="comment__edit" href="/post/{{ post.key.id() }}/comment/{{ comment.key.id() }}">Edit</a>
-          <form method="post" action="/post/{{ post.key.id() }}/comment/{{ comment.key.id() }}">
+          <a class="comment__edit" href="/post/{{ blog_post.key.id() }}/comment/{{ comment.key.id() }}">Edit</a>
+          <form method="post" action="/post/{{ blog_post.key.id() }}/comment/{{ comment.key.id() }}">
             <button class="comment__delete" type="submit" name="delete" value="delete">Delete</button>
           </form>
         {% endif %}
@@ -54,7 +54,7 @@
   {% endfor %}
   {% if user %}
     <h3>Write a comment:</h3>
-    <form class="comment-form" method="post" action="/post/{{ post.key.id() }}/comment">
+    <form class="comment-form" method="post" action="/post/{{ blog_post.key.id() }}/comment">
       <p><textarea class="comment-box" name="comment"></textarea></p>
       <p><button class="comment-form__submit">Submit</button></p>
     </form>

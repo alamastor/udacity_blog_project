@@ -24,11 +24,11 @@ def mock_Comment(mocker, comment, user_id, comment_id=0):
     type(mock_comment).datetime = datetime.now()
     type(mock_comment).key = key
 
-    mock_Comment_post_page.get_by_id_and_post_key.return_value = mock_comment
-    mock_Comment_post_page.get_by_post_key.return_value = [mock_comment]
+    mock_Comment_post_page.get_by_id_and_blog_post_key.return_value = mock_comment
+    mock_Comment_post_page.get_by_blog_post_key.return_value = [mock_comment]
 
-    mock_Comment_comment_page.get_by_id_and_post_key.return_value = mock_comment
-    mock_Comment_comment_page.get_by_post_key.return_value = [mock_comment]
+    mock_Comment_comment_page.get_by_id_and_blog_post_key.return_value = mock_comment
+    mock_Comment_comment_page.get_by_blog_post_key.return_value = [mock_comment]
 
     return mock_comment
 
@@ -198,7 +198,7 @@ def test_get_comment_with_nonexistant_id_returns_404(
     post_id = mock_BlogPost.key.id()
 
     mock_Comment = mocker.patch('views.comment_page.Comment', autospec=True)
-    mock_Comment.get_by_id_and_post_key.return_value = None
+    mock_Comment.get_by_id_and_blog_post_key.return_value = None
     with pytest.raises(AppError) as excinfo:
         response = logged_in_get_comment_page(testapp, user_id, post_id, 1)
     assert '404' in str(excinfo.value)
@@ -208,11 +208,11 @@ def test_get_comment_with_other_user_returns_403(
     testapp, fake_user, mock_BlogPost, mocker
 ):
     user_id = fake_user.key.id()
-    post_id = mock_BlogPost.key.id()
+    blog_post_id = mock_BlogPost.key.id()
 
     mock_Comment(mocker, 'A comment', 123643)
     with pytest.raises(AppError) as excinfo:
-        response = logged_in_get_comment_page(testapp, user_id, post_id, 1)
+        response = logged_in_get_comment_page(testapp, user_id, blog_post_id, 1)
     assert '403' in str(excinfo.value)
 
 

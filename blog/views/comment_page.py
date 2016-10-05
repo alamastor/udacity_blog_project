@@ -72,7 +72,7 @@ class CommentPage(BaseHandler):
 
     def get_comment(self):
         if self.comment_id:
-            comment = Comment.get_by_id_and_post_key(
+            comment = Comment.get_by_id_and_blog_post_key(
                 self.comment_id, self.blog_post.key
             )
         else:
@@ -90,7 +90,7 @@ class CommentPage(BaseHandler):
 
 
     def delete(self):
-        comment = Comment.get_by_id_and_post_key(
+        comment = Comment.get_by_id_and_blog_post_key(
             self.comment_id, self.blog_post.key
         )
 

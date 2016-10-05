@@ -8,50 +8,63 @@ from models.blog_post import blog_key, BlogPost
 
 
 class BlogPostPage(BaseHandler):
+    ''' Handler responsible for rendering, creating, editing, deleting,
+    commenting on and liking blog posts.
+    '''
     TITLE_RE = re.compile(r'^.{4,80}')
     CONTENT_RE = re.compile(r'^[\S\s]{4,}')
 
-    def get(self, post_id):
-        self.post_id = int(post_id)
+    def get(self, blog_post_id):
+        ''' Return response with full blog post, comments and likes.
+        '''
+        self.blog_post_id = int(blog_post_id)
         self.render_blog_post()
 
-    def render_blog_post(self):
-        post = BlogPost.get_by_id(self.post_id, parent=blog_key())
-
-        if post:
-            comments = Comment.get_by_post_key(post.key)
-            comments.sort(key=lambda x: x.datetime)
-            self.render(
-                'post.html',
-                user=self.user,
-                post=post,
-                comments=comments,
-                already_liked=self.already_liked_blog_post,
-                is_creator=self.is_blog_post_creator,
-                likes=self.likes
-            )
-        else:
-            self.abort(404)
-
     @BaseHandler.login_required()
-    def post(self, post_id=None):
-        if post_id:
-            self.post_id = int(post_id)
+    def post(self, blog_post_id=None):
+        ''' Posts with delete or like values will trigger those actions
+        otherwise a create or update will be attempted. If the post url
+        contained a blog post id and update will be attempted and a new id will
+        be created.
+        '''
+        if blog_post_id:
+            self.blog_post_id = int(blog_post_id)
         else:
-            self.post_id = None
+            self.blog_post_id = None
 
         if self.request.get('delete'):
             self.handle_delete_request()
         elif self.request.get('like'):
             self.handle_like_request()
-        elif self.post_id:
+        elif self.blog_post_id:
+            # If post had a blog post id then update the blog post,
+            # otherwise, create a new blog post.
             self.update_blog_post()
         else:
             self.create_blog_post()
 
+    def render_blog_post(self):
+        ''' Return HTTP response with rendered blog post.
+        '''
+        blog_post = BlogPost.get_by_id(self.blog_post_id, parent=blog_key())
+        if not blog_post:
+            self.abort(404)
+
+        comments = Comment.get_by_blog_post_key(blog_post.key)
+        comments.sort(key=lambda x: x.datetime)
+        self.render(
+            'blog_post.html',
+            user=self.user,
+            blog_post=blog_post,
+            comments=comments,
+            already_liked=self.already_liked_blog_post,
+            is_creator=self.is_blog_post_creator,
+            likes=self.likes
+        )
+
     def get_post(self):
-        if self.post_id:
-            post = BlogPost.get_by_id(self.post_id, parent=blog_key())
+        if self.blog_post_id:
+            post = BlogPost.get_by_id(self.blog_post_id, parent=blog_key())
 
             if not post:
                 self.abort(404)
@@ -170,7 +183,7 @@ class BlogPostPage(BaseHandler):
 
     @property
     def already_liked_blog_post(self):
-        likes = Like.get_by_blog_post_id(self.post_id)
+        likes = Like.get_by_blog_post_id(self.blog_post_id)
         if self.user and self.user.key.id() in [l.user_id for l in likes]:
             return True
         else:
@@ -178,4 +191,4 @@ class BlogPostPage(BaseHandler):
 
     @property
     def likes(self):
-        return len(Like.get_by_blog_post_id(self.post_id))
+        return len(Like.get_by_blog_post_id(self.blog_post_id))

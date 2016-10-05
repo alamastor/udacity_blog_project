@@ -82,7 +82,7 @@ def mock_comments(mocker):
         'comment', 'paragraphs', 'datetime', 'formatted_date', 'username'
     ])
     mocked_Comment = mocker.patch('views.blog_post_page.Comment', autospec=True)
-    mocked_Comment.get_by_post_key.return_value = [
+    mocked_Comment.get_by_blog_post_key.return_value = [
         Comment('A comment', ['A comment'], datetime(2014, 1, 1), '1-Jan-2014', 'A user'),
         Comment('B comment', ['B comment'], datetime(2015, 1, 1), '1-Jan-2015', 'B user'),
         Comment('C comment', ['C comment'], datetime(2014, 1, 2), '2-Jan-2014', 'C user'),

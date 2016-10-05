@@ -68,37 +68,37 @@ def test_User_query_by_username(testdb):
     assert User.get_by_username(user1.username) == user1
 
 
-def test_Comment_get_by_post_key(testdb):
-    post_1 = BlogPost(
+def test_Comment_get_by_blog_post_key(testdb):
+    blog_post_1 = BlogPost(
         parent=blog_key(),
         title='asd',
         content='asdf',
         datetime=datetime.now(),
         user_id=1
     )
-    post_1.put()
-    post_2 = BlogPost(
+    blog_post_1.put()
+    blog_post_2 = BlogPost(
         parent=blog_key(),
         title='asdfl',
         content='asdfx',
         datetime=datetime.now(),
         user_id=1
     )
-    post_2.put()
+    blog_post_2.put()
     comment1 = Comment(
-        parent=post_1.key, comment='asdf', user_id=1, datetime=datetime.now()
+        parent=blog_post_1.key, comment='asdf', user_id=1, datetime=datetime.now()
     )
     comment1.put()
     comment2 = Comment(
-        parent=post_2.key, comment='abc', user_id=1, datetime=datetime.now()
+        parent=blog_post_2.key, comment='abc', user_id=1, datetime=datetime.now()
     )
     comment2.put()
     comment3 = Comment(
-        parent=post_2.key, comment='qwe', user_id=5, datetime=datetime.now()
+        parent=blog_post_2.key, comment='qwe', user_id=5, datetime=datetime.now()
     )
     comment3.put()
 
-    assert Comment.get_by_post_key(post_2.key) == [comment2, comment3]
+    assert Comment.get_by_blog_post_key(blog_post_2.key) == [comment2, comment3]
 
 
 def test_Comment_formatted_date(testdb):
@@ -107,22 +107,22 @@ def test_Comment_formatted_date(testdb):
     assert comment.formatted_date == '1-Feb-2015'
 
 
-def test_Comment_get_by_id_and_post_id(testdb):
-    post = BlogPost(
+def test_Comment_get_by_id_and_blog_post_id(testdb):
+    blog_post = BlogPost(
         parent=blog_key(),
         title='asd',
         content='asdf',
         datetime=datetime.now(),
         user_id=1
     )
-    post.put()
+    blog_post.put()
     comment = Comment(
-        parent=post.key, comment='asdf', user_id=1, datetime=datetime.now()
+        parent=blog_post.key, comment='asdf', user_id=1, datetime=datetime.now()
     )
     comment.put()
 
-    assert Comment.get_by_id_and_post_key(
-        comment.key.id(), post.full_key
+    assert Comment.get_by_id_and_blog_post_key(
+        comment.key.id(), blog_post.full_key
     ) == comment
 
 
