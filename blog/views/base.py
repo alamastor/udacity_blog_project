@@ -19,8 +19,8 @@ class BaseHandler(webapp2.RequestHandler):
     ''' Base request handler class, other handlers should inherit from this.
     '''
 
-    def initialize(self, *args, **kwargs):
-        super(BaseHandler, self).initialize(*args, **kwargs)
+    def __init__(self, request, response):
+        self.initialize(request, response)
         # Set user from cookie if present.
         user_id = self.read_secure_cookie('sess')
         self.user = user_id and User.get_by_id(int(user_id))
