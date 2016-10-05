@@ -72,14 +72,14 @@ class BaseHandler(webapp2.RequestHandler):
     @staticmethod
     def login_required(abort=None):
         ''' Decorator method for adding automatic handling of logged out users
-        on handler methods.
+        to handler methods.
 
-        Will redirect to login page if called with no arguments:
+        Will redirect to login page if called with no arguments, eg:
         @login_required()
         def get(self):
             pass
 
-        Will abort with passed error if called with abort argument:
+        Will abort with passed HTTP code if called with abort argument, eg:
         @login_required(abort=401)
         def get(self):
             pass
