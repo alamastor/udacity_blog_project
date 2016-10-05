@@ -46,9 +46,7 @@ class BlogPostPage(BaseHandler):
     def render_blog_post(self):
         ''' Return HTTP response with rendered blog post.
         '''
-        blog_post = BlogPost.get_by_id(self.blog_post_id, parent=blog_key())
-        if not blog_post:
-            self.abort(404)
+        blog_post = self.get_blog_post()
 
         comments = Comment.get_by_blog_post_key(blog_post.key)
         comments.sort(key=lambda x: x.datetime)
@@ -62,16 +60,18 @@ class BlogPostPage(BaseHandler):
             likes=self.likes
         )
 
-    def get_post(self):
+    def get_blog_post(self):
+        ''' Get blog post model object from id.
+        '''
         if self.blog_post_id:
-            post = BlogPost.get_by_id(self.blog_post_id, parent=blog_key())
+            blog_post = BlogPost.get_by_id(self.blog_post_id, parent=blog_key())
 
-            if not post:
+            if not blog_post:
                 self.abort(404)
         else:
-            post = None
+            blog_post = None
 
-        return post
+        return blog_post
 
     def handle_delete_request(self):
         if self.request.get('delete') != 'delete':
@@ -107,8 +107,8 @@ class BlogPostPage(BaseHandler):
             self.redirect('/post/%i' % post.key.id())
 
     def update_blog_post(self):
-        post = self.get_post()
-        if post.user_id != self.user.key.id():
+        blog_post = self.get_blog_post()
+        if blog_post.user_id != self.user.key.id():
             self.abort(403)
 
         title = self.request.get('title')
@@ -118,11 +118,11 @@ class BlogPostPage(BaseHandler):
         if errors:
             self.render_post_validation_errors(title, content, errors)
         else:
-            post.title = title
-            post.content = content
-            post.put()
+            blog_post.title = title
+            blog_post.content = content
+            blog_post.put()
 
-            self.redirect('/post/%i' % post.key.id())
+            self.redirect('/post/%i' % blog_post.key.id())
 
     def blog_post_validation_errors(self, title, content):
         errors = []
@@ -142,17 +142,17 @@ class BlogPostPage(BaseHandler):
 
     @property
     def is_blog_post_creator(self):
-        if self.user and self.user.key.id() == self.get_post().user_id:
+        if self.user and self.user.key.id() == self.get_blog_post().user_id:
             return True
         else:
             return False
 
     def delete(self):
-        post = self.get_post()
-        if post.user_id != self.user.key.id():
+        blog_post = self.get_blog_post()
+        if blog_post.user_id != self.user.key.id():
             self.abort(403)
 
-        post.key.delete()
+        blog_post.key.delete()
         self.redirect('/')
 
     def like(self):
@@ -162,7 +162,7 @@ class BlogPostPage(BaseHandler):
         if self.already_liked_blog_post:
             self.abort(403)
 
-        Like(parent=self.get_post().key, user_id=self.user.key.id()).put()
+        Like(parent=self.get_blog_post().key, user_id=self.user.key.id()).put()
 
         self.render_blog_post()
 
@@ -174,7 +174,7 @@ class BlogPostPage(BaseHandler):
             self.abort(403)
 
         like = Like.get_by_blog_post_id_and_user_id(
-            self.get_post().key.id(), self.user.key.id()
+            self.get_blog_post().key.id(), self.user.key.id()
         )
         like.key.delete()
 
