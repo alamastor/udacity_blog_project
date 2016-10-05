@@ -133,12 +133,15 @@ class BlogPostPage(BaseHandler):
         return errors
 
     def render_post_validation_errors(self, title, content, errors):
-        self.render(
-            'blog_post_create_edit.html',
-            title=title,
-            content=content,
-            errors=errors
-        )
+        if self.blog_post_id:
+            url_string = '/post/%i/edit?' % self.blog_post_id
+        else:
+            url_string = '/post/create?'
+        url_string += 'title=' + title
+        url_string += '&content=' + content
+        for error in errors:
+            url_string += '&error=' + error
+        self.redirect(url_string)
 
     @property
     def is_blog_post_creator(self):
