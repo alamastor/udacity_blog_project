@@ -1,10 +1,11 @@
 import webapp2
 
+from views.base import BaseHandler
 
-class LogoutHandler(webapp2.RequestHandler):
+class LogoutHandler(BaseHandler):
 
     def post(self):
-        self.response.delete_cookie('sess')
+        self.delete_cookie('sess')
         if self.request.referer:
             self.redirect(self.request.referer)
         else:
