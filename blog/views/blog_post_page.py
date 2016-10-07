@@ -69,7 +69,9 @@ class BlogPostPage(BaseHandler):
         '''
         if not self._blog_post:
             if self.blog_post_id:
-                blog_post = BlogPost.get_by_id(self.blog_post_id, parent=blog_key())
+                blog_post = BlogPost.get_by_id(
+                    self.blog_post_id, parent=blog_key()
+                )
 
                 if not blog_post:
                     self.abort(404)
@@ -203,7 +205,6 @@ class BlogPostPage(BaseHandler):
             self.blog_post.key.id(), self.user.key.id()
         )
         like.key.delete()
-
 
     @property
     def already_liked_blog_post(self):

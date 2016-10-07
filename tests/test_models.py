@@ -69,19 +69,29 @@ def test_Comment_get_by_blog_post_key(testdb):
     )
     blog_post_2.put()
     comment1 = Comment(
-        parent=blog_post_1.key, comment='asdf', user_id=1, datetime=datetime.now()
+        parent=blog_post_1.key,
+        comment='asdf',
+        user_id=1,
+        datetime=datetime.now()
     )
     comment1.put()
     comment2 = Comment(
-        parent=blog_post_2.key, comment='abc', user_id=1, datetime=datetime.now()
+        parent=blog_post_2.key,
+        comment='abc',
+        user_id=1,
+        datetime=datetime.now()
     )
     comment2.put()
     comment3 = Comment(
-        parent=blog_post_2.key, comment='qwe', user_id=5, datetime=datetime.now()
+        parent=blog_post_2.key,
+        comment='qwe',
+        user_id=5,
+        datetime=datetime.now()
     )
     comment3.put()
 
-    assert Comment.get_by_blog_post_key(blog_post_2.key) == [comment2, comment3]
+    comments = Comment.get_by_blog_post_key(blog_post_2.key)
+    assert comments == [comment2, comment3]
 
 
 def test_Comment_formatted_date(testdb):
@@ -100,7 +110,7 @@ def test_Comment_get_by_id_and_blog_post_id(testdb):
     )
     blog_post.put()
     comment = Comment(
-        parent=blog_post.key, comment='asdf', user_id=1, datetime=datetime.now()
+        parent=blog_post.key, comment='asd', user_id=1, datetime=datetime.now()
     )
     comment.put()
 
@@ -120,6 +130,7 @@ def test_Comment_username(testdb):
     comment.put()
 
     assert comment.username == user.username
+
 
 def test_Like_get_by_post_id(testdb):
     blog_post = BlogPost(
@@ -141,6 +152,7 @@ def test_Like_get_by_post_id(testdb):
     assert like_1 in result
     assert like_2 in result
 
+
 def test_like_get_by_post_id_and_user_id(testdb):
     blog_post = BlogPost(
         parent=blog_key(),
@@ -156,5 +168,7 @@ def test_like_get_by_post_id_and_user_id(testdb):
     like_2 = Like(parent=blog_post.key, user_id=2)
     like_2.put()
 
-    result = Like.get_by_blog_post_id_and_user_id(blog_post.key.id(), user_id=2)
+    result = Like.get_by_blog_post_id_and_user_id(
+        blog_post.key.id(), user_id=2
+    )
     assert result == like_2

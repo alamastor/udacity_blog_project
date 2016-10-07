@@ -26,7 +26,8 @@ def test_user_login(run_app, browser, test_user):
     # User is redirected to welcome page
     welcome_page = WelcomePage(browser)
     assert welcome_page.is_open()
-    assert browser.find_element_by_class_name('welcome-header').text == 'Welcome %s!' % test_user.username
+    welcome_header = browser.find_element_by_class_name('welcome-header').text
+    assert welcome_header == 'Welcome %s!' % test_user.username
 
     # User clicks continue and sees username in nav.
     welcome_page.continue_link.click()

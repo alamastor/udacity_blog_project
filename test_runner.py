@@ -8,6 +8,7 @@ import pytest
 
 SDK_PATH = '/usr/local/google_appengine'
 
+
 def main(functional, sdk_path=SDK_PATH, files=[], fail_fast=False):
     # Add App Engine SKD to Python path
     sys.path.insert(0, sdk_path)
@@ -40,7 +41,7 @@ if __name__ == '__main__':
     parser.add_argument('--sdk_path')
     parser.add_argument(
         '-x',
-        '--fail_fast', 
+        '--fail_fast',
         help="exit after first test fail",
         action='store_true'
     )

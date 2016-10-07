@@ -125,7 +125,8 @@ def test_unlike_calls_Like_and_delete(
     mocker, testapp, mock_comments, fake_user, mock_Like, mock_BlogPost
 ):
     mock_already_liked = mocker.patch(
-        'views.blog_post_page.BlogPostPage.already_liked_blog_post', new_callable=mocker.PropertyMock
+        'views.blog_post_page.BlogPostPage.already_liked_blog_post',
+        new_callable=mocker.PropertyMock
     )
     mock_already_liked.return_value = True
 
@@ -140,14 +141,16 @@ def test_unlike_calls_Like_and_delete(
         mock_BlogPost.key.id(),
         fake_user.key.id(),
     )
-    mock_Like.get_by_blog_post_id_and_user_id.return_value.key.delete.assert_called_once()
+    mock_key = mock_Like.get_by_blog_post_id_and_user_id.return_value.key
+    mock_key.delete.assert_called_once()
 
 
 def test_cannont_like_twice(
     mocker, testapp, mock_comments, fake_user, mock_Like, mock_BlogPost
 ):
     mock_already_liked = mocker.patch(
-        'views.blog_post_page.BlogPostPage.already_liked_blog_post', new_callable=mocker.PropertyMock
+        'views.blog_post_page.BlogPostPage.already_liked_blog_post',
+        new_callable=mocker.PropertyMock
     )
     mock_already_liked.return_value = True
 

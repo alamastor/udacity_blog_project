@@ -10,7 +10,8 @@ def test_welcome_page_redirects_login_if_not_logged_in(testapp):
 
 def test_welcome_page_returns_200_if_logged_in(testapp, fake_user):
     user_id = fake_user.key.id()
-    assert views_base.logged_in_get(testapp, '/welcome', user_id).status_int == 200
+    res = views_base.logged_in_get(testapp, '/welcome', user_id)
+    assert res.status_int == 200
 
 
 def test_welcome_page_shows_username(testapp, fake_user):

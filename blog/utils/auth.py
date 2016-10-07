@@ -27,7 +27,7 @@ def make_secure_val(val):
 def check_secure_val(val, hexdigest):
     ''' Verify a value matches a hash.
     '''
-    return constant_time_compare(make_secure_val(val),str(hexdigest))
+    return constant_time_compare(make_secure_val(val), str(hexdigest))
 
 
 def create_user(username, password, email=None):

@@ -44,7 +44,10 @@ def create_test_user(username=None, password=None, email=None):
     if not password:
         password = str(random.randint(0, 100000))
     if not email:
-        email = '%i@%i.com' % (random.randint(0, 100000), random.randint(0, 100000))
+        email = '%i@%i.com' % (
+            random.randint(0, 100000),
+            random.randint(0, 100000)
+        )
     res = requests.post('%s/signup' % MAIN_PAGE_URL, {
         'username': username,
         'password': password,
@@ -75,6 +78,6 @@ def create_test_comment(post_id, comment, user_id=None):
 
     auth_cookie = {'sess': '%i|%s' % (user_id, auth.make_secure_val(user_id))}
 
-    res= requests.post('%s/post/%i/comment' % (MAIN_PAGE_URL, post_id), {
+    res = requests.post('%s/post/%i/comment' % (MAIN_PAGE_URL, post_id), {
         'comment': comment
     }, cookies=auth_cookie)

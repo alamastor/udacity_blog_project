@@ -14,7 +14,9 @@ def mock_valid_User(mocker, mock):
     User = namedtuple('User', ['username', 'password'])
     mock_user = User('Billy_Bob', '!Password')
     DbUser = namedtuple('DbUser', ['username', 'pw_hash', 'salt', 'key'])
-    mocked_get_by_username = mocker.patch('views.login_page.User.get_by_username')
+    mocked_get_by_username = mocker.patch(
+        'views.login_page.User.get_by_username'
+    )
     mock_key = mock
     mock_key.id = mocker.Mock(return_value=1)
     mocked_get_by_username.return_value = DbUser(
@@ -31,7 +33,9 @@ def mock_invalid_User(mocker):
     User = namedtuple('User', ['username', 'password'])
     mock_user = User('Billy_Bob', '!Password')
     DbUser = namedtuple('DbUser', ['username', 'pw_hash', 'salt'])
-    mocked_get_by_username = mocker.patch('views.login_page.User.get_by_username')
+    mocked_get_by_username = mocker.patch(
+        'views.login_page.User.get_by_username'
+    )
     mocked_get_by_username.return_value = DbUser(
         mock_user.username,
         'ea6b636e740f821220fe50263f127519a5185fe875df414bbe6b00de21a5b281',
@@ -44,7 +48,9 @@ def mock_invalid_User(mocker):
 def mock_non_existant_User(mocker):
     User = namedtuple('User', ['username', 'password'])
     mock_user = User('Billy_Bob', '!passwrd')
-    mocked_query_by_username = mocker.patch('views.login_page.User.get_by_username')
+    mocked_query_by_username = mocker.patch(
+        'views.login_page.User.get_by_username'
+    )
     mocked_query_by_username.return_value = None
     return mock_user
 
@@ -88,13 +94,17 @@ def post_user_to_login(testapp, user, cookie_dict={}):
     )
 
 
-def test_login_with_correct_credentials_redirects_to_welcome(testapp, mock_valid_User):
+def test_login_with_correct_credentials_redirects_to_welcome(
+    testapp, mock_valid_User
+):
     res = post_user_to_login(testapp, mock_valid_User)
     assert res.status_int == 302
     assert res.location.split('/')[-1] == 'welcome'
 
 
-def test_login_shows_error_on_non_existant_user(testapp, mock_non_existant_User):
+def test_login_shows_error_on_non_existant_user(
+    testapp, mock_non_existant_User
+):
     response = post_user_to_login(testapp, mock_non_existant_User)
     assert 'Invalid' in response.normal_body
 
@@ -109,11 +119,14 @@ def test_valid_User_response_contains_cookie(testapp, mock_valid_User):
 
 
 def test_login_cookie_has_name_sess(testapp, mock_valid_User):
-    cookie = post_user_to_login(testapp, mock_valid_User).headers['Set-Cookie']
+    res = post_user_to_login(testapp, mock_valid_User)
+    cookie = res.headers['Set-Cookie']
     assert cookie.split('=')[0] == 'sess'
 
 
-def test_login_with_valid_user_calls_login_meth(testapp, mock_valid_User, mock_login):
+def test_login_with_valid_user_calls_login_meth(
+    testapp, mock_valid_User, mock_login
+):
     post_user_to_login(testapp, mock_valid_User)
     mock_login.assert_called_once()
 
@@ -121,7 +134,9 @@ def test_login_with_valid_user_calls_login_meth(testapp, mock_valid_User, mock_l
 def test_logged_in_user_has_username_displayed_in_nav(testapp, fake_user):
     user_id = fake_user.key.id()
     response = testapp.get('/', headers={
-        'Cookie': 'sess=%s|%s; Path=/' % (user_id, auth.make_secure_val(user_id))
+        'Cookie': 'sess=%s|%s; Path=/' % (
+            user_id, auth.make_secure_val(user_id)
+        )
     })
     assert fake_user.username in response.html.nav.text
 

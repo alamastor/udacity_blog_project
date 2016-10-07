@@ -113,7 +113,9 @@ def test_valid_post_calls_login(testapp, mocker):
 
 
 def test_post_with_existing_user_displays_error(testapp, mocker):
-    mocker.patch('utils.auth.User.get_by_username', return_value=[mocker.Mock()])
+    mocker.patch(
+        'utils.auth.User.get_by_username', return_value=[mocker.Mock()]
+    )
     assert jinja2.escape('Username is already taken') in post_to_signup(
         testapp,
         username='sadfas',

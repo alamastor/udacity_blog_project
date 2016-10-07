@@ -24,9 +24,10 @@ def testapp():
 
 @pytest.fixture
 def fake_user():
+    hash_ = 'ea6b636e740f821220fe50263f127519a5185fe875df414bbe6b00de21a5b281'
     user = User(
         username='Billy_Bob',
-        pw_hash='ea6b636e740f821220fe50263f127519a5185fe875df414bbe6b00de21a5b281',
+        pw_hash=hash_,
         salt='12345678'
     )
     user.put()
@@ -36,9 +37,15 @@ def fake_user():
 @pytest.fixture
 def mock_BlogPost(mocker, user_id=2):
     # Patch this for differect tests that use it.
-    mocked_BlogPost_post_page = mocker.patch('views.blog_post_page.BlogPost', autospec=True)
-    mocked_BlogPost_create_edit_page = mocker.patch('views.create_edit_page.BlogPost', autospec=True)
-    mocked_BlogPost_comment_page = mocker.patch('views.comment_page.BlogPost', autospec=True)
+    mocked_BlogPost_post_page = mocker.patch(
+        'views.blog_post_page.BlogPost', autospec=True
+    )
+    mocked_BlogPost_create_edit_page = mocker.patch(
+        'views.create_edit_page.BlogPost', autospec=True
+    )
+    mocked_BlogPost_comment_page = mocker.patch(
+        'views.comment_page.BlogPost', autospec=True
+    )
     mock_post = mocker.Mock()
     key = mocker.Mock(return_value='A1')
     key.id = mocker.Mock(return_value=1)
@@ -56,7 +63,8 @@ def mock_BlogPost(mocker, user_id=2):
 
 
 def logged_in_get(testapp, url, user_id):
-    testapp.set_cookie('sess', '%s|%s' % (user_id, auth.make_secure_val(user_id)))
+    cookie_str = '%s|%s' % (user_id, auth.make_secure_val(user_id))
+    testapp.set_cookie('sess', cookie_str)
     return testapp.get(url)
 
 
@@ -81,11 +89,32 @@ def mock_comments(mocker):
     Comment = namedtuple('Comment', [
         'comment', 'paragraphs', 'datetime', 'formatted_date', 'username'
     ])
-    mocked_Comment = mocker.patch('views.blog_post_page.Comment', autospec=True)
+    mocked_Comment = mocker.patch(
+        'views.blog_post_page.Comment',
+        autospec=True
+    )
     mocked_Comment.get_by_blog_post_key.return_value = [
-        Comment('A comment', ['A comment'], datetime(2014, 1, 1), '1-Jan-2014', 'A user'),
-        Comment('B comment', ['B comment'], datetime(2015, 1, 1), '1-Jan-2015', 'B user'),
-        Comment('C comment', ['C comment'], datetime(2014, 1, 2), '2-Jan-2014', 'C user'),
+        Comment(
+            'A comment',
+            ['A comment'],
+            datetime(2014, 1, 1),
+            '1-Jan-2014',
+            'A user'
+        ),
+        Comment(
+            'B comment',
+            ['B comment'],
+            datetime(2015, 1, 1),
+            '1-Jan-2015',
+            'B user'
+        ),
+        Comment(
+            'C comment',
+            ['C comment'],
+            datetime(2014, 1, 2),
+            '2-Jan-2014',
+            'C user'
+        ),
     ]
 
 

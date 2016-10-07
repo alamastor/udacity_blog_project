@@ -13,7 +13,7 @@ class User(ndb.Model):
     def get_by_username(cls, username):
         ''' Return one user object with given username.
         '''
-        users = cls.query(cls.username==username).fetch()
+        users = cls.query(cls.username == username).fetch()
         if users:
             if len(users) != 1:
                 msg = 'User %s appears %s times in db' % (username, len(users))

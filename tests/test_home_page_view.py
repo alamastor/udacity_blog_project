@@ -15,10 +15,11 @@ def mock_BlogPost_query(mocker):
     keyId2 = mocker.Mock()
     keyId2.id = mocker.Mock(return_value=2)
     mocked_query.return_value.order.return_value.fetch_page.return_value = ([
-        BlogPost('Post 2', 'dfjals;dfjawpoefinasdni', datetime(2016, 8, 11), keyId2),
-        BlogPost('Post 1', 'dfjals;dfjawpoefinasdni', datetime(2016, 8, 10), keyId1),
+        BlogPost('Post 2', 'dfjals;dfjawpoi', datetime(2016, 8, 11), keyId2),
+        BlogPost('Post 1', 'dfjals;dfjawpoi', datetime(2016, 8, 10), keyId1),
     ], mocker.Mock, False)
     return mocked_query
+
 
 @pytest.fixture
 def mock_BlogPost_query_many_posts(mocker):
@@ -31,8 +32,8 @@ def mock_BlogPost_query_many_posts(mocker):
     mocked_next_cur = mocker.Mock()
     type(mocked_next_cur).urlsafe = mocker.Mock(return_value=1234)
     mocked_query.return_value.order.return_value.fetch_page.return_value = ([
-        BlogPost('Post 2', 'dfjals;dfjawpoefinasdni', datetime(2016, 8, 11), keyId2),
-        BlogPost('Post 1', 'dfjals;dfjawpoefinasdni', datetime(2016, 8, 10), keyId1),
+        BlogPost('Post 2', 'dfjals;dfja', datetime(2016, 8, 11), keyId2),
+        BlogPost('Post 1', 'dfjals;dfja', datetime(2016, 8, 10), keyId1),
     ] * 5, mocked_next_cur, True)
     return mocked_query
 
@@ -59,7 +60,8 @@ def test_home_page_post_calls_query_order(testapp, mock_BlogPost_query):
 
 def test_home_has_links_to_individual_posts(testapp, mock_BlogPost_query):
     soup = testapp.get('/').html
-    links = [x.a['href'] for x in soup.find_all('h2', {'class': 'post__title'})]
+    post_titles = soup.find_all('h2', {'class': 'post__title'})
+    links = [x.a['href'] for x in post_titles]
     assert links == ['/post/2', '/post/1']
 
 
@@ -73,6 +75,7 @@ def test_home_page_shows_link_to_next_page_if_more_posts_are_available(
 def test_does_not_show_next_page_link_if_no_more_posts_are_available(
     testapp, mock_BlogPost_query
 ):
-    mock_BlogPost_query.return_value.iter.return_value.has_next.return_value = False
+    mock_query_iter = mock_BlogPost_query.return_value.iter
+    mock_query_iter.return_value.has_next.return_value = False
     body = testapp.get('/').normal_body
     assert 'next-page' not in body

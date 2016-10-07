@@ -77,7 +77,9 @@ class BlogPost(object):
 class SignUpPage(Page):
 
     def __init__(self, browser):
-        super(SignUpPage, self).__init__(browser, base.MAIN_PAGE_URL + '/signup')
+        super(SignUpPage, self).__init__(
+            browser, base.MAIN_PAGE_URL + '/signup'
+        )
 
     def submit_form(self, username, password, verify, email=''):
         username_input = self.browser.find_element_by_name('username')
@@ -128,16 +130,21 @@ class LoginPage(Page):
 class WelcomePage(Page):
 
     def __init__(self, browser):
-        super(WelcomePage, self).__init__(browser, base.MAIN_PAGE_URL + '/welcome')
+        super(WelcomePage, self).__init__(
+            browser, base.MAIN_PAGE_URL + '/welcome'
+        )
 
     @property
     def continue_link(self):
         return self.browser.find_element_by_class_name('continue-link')
 
+
 class CreatePage(Page):
 
     def __init__(self, browser):
-        super(CreatePage, self).__init__(browser, base.MAIN_PAGE_URL + '/post/create')
+        super(CreatePage, self).__init__(
+            browser, base.MAIN_PAGE_URL + '/post/create'
+        )
 
     def submit_form(self, title, content):
         title_input = self.browser.find_element_by_name('title')
@@ -177,19 +184,26 @@ class BlogPostPage(Page):
 
     @property
     def content(self):
-        return [e.text for e in self.browser.find_elements_by_class_name('post__content')]
+        results = []
+        for e in self.browser.find_elements_by_class_name('post__content'):
+            results.append(e.text)
+        return results
 
     def edit(self, title=None, content=None):
         edit_button = self.browser.find_element_by_class_name('post__edit')
         edit_button.click()
 
         if title:
-            title_area = self.browser.find_element_by_class_name('post-form__post-title')
+            title_area = self.browser.find_element_by_class_name(
+                'post-form__post-title'
+            )
             title_area.clear()
             title_area.send_keys(title)
 
         if content:
-            content_area = self.browser.find_element_by_class_name('post-form__post-content')
+            content_area = self.browser.find_element_by_class_name(
+                'post-form__post-content'
+            )
             content_area.clear()
             content_area.send_keys(content)
 
@@ -250,13 +264,17 @@ class Comment(object):
         edit_button = self.element.find_element_by_class_name('comment__edit')
         edit_button.click()
 
-        edit_box = self.browser.find_element_by_class_name('comment-form__textarea')
+        edit_box = self.browser.find_element_by_class_name(
+            'comment-form__textarea'
+        )
         edit_box.clear()
         edit_box.send_keys(comment)
 
-        submit_button = self.browser.find_element_by_class_name('comment-form__submit')
+        submit_button = self.browser.find_element_by_class_name(
+            'comment-form__submit'
+        )
         submit_button.click()
 
     def delete(self):
-        delete_button = self.element.find_element_by_class_name('comment__delete')
-        delete_button.click()
+        del_button = self.element.find_element_by_class_name('comment__delete')
+        del_button.click()

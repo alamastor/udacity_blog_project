@@ -15,6 +15,7 @@ def add_posts():
     base.create_test_blog_post('Post X', 'asdfasfklamnmfgh')
     base.create_test_blog_post('Post N', 'asdfasfklanwemzxcvzcxv')
 
+
 def test_user_can_view_posts(run_app, browser, add_posts):
     # User visits main page.
     home_page = HomePage(browser).visit_page()

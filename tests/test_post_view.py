@@ -13,8 +13,12 @@ from blog.utils import auth
 
 
 def mock_Comment(mocker, comment, user_id, comment_id=0):
-    mock_Comment_post_page = mocker.patch('views.blog_post_page.Comment', autospec=True)
-    mock_Comment_comment_page = mocker.patch('views.comment_page.Comment', autospec=True)
+    mock_Comment_post = mocker.patch(
+        'views.blog_post_page.Comment', autospec=True
+    )
+    mock_Comment_comm = mocker.patch(
+        'views.comment_page.Comment', autospec=True
+    )
     key = mocker.Mock()
     key.id.return_value = comment_id
     mock_comment = mocker.Mock()
@@ -24,11 +28,11 @@ def mock_Comment(mocker, comment, user_id, comment_id=0):
     type(mock_comment).datetime = datetime.now()
     type(mock_comment).key = key
 
-    mock_Comment_post_page.get_by_id_and_blog_post_key.return_value = mock_comment
-    mock_Comment_post_page.get_by_blog_post_key.return_value = [mock_comment]
+    mock_Comment_post.get_by_id_and_blog_post_key.return_value = mock_comment
+    mock_Comment_post.get_by_blog_post_key.return_value = [mock_comment]
 
-    mock_Comment_comment_page.get_by_id_and_blog_post_key.return_value = mock_comment
-    mock_Comment_comment_page.get_by_blog_post_key.return_value = [mock_comment]
+    mock_Comment_comm.get_by_id_and_blog_post_key.return_value = mock_comment
+    mock_Comment_comm.get_by_blog_post_key.return_value = [mock_comment]
 
     return mock_comment
 
@@ -40,8 +44,8 @@ def test_get_post_returns_404_if_post_does_not_exist(testapp):
 
 
 def test_get_post_returns_200_if_post_exists(
-        testapp, mock_BlogPost, mock_comments, mock_Like
-    ):
+    testapp, mock_BlogPost, mock_comments, mock_Like
+):
     assert testapp.get('/post/%i' % mock_BlogPost.key.id()).status_int == 200
 
 
@@ -50,8 +54,11 @@ def soup(testapp, mock_BlogPost, mock_comments, mock_Like):
     response = testapp.get('/post/%i' % mock_BlogPost.key.id())
     return response.html
 
+
 @pytest.fixture
-def soup_logged_in(testapp, fake_user, mock_BlogPost, mock_comments, mock_Like):
+def soup_logged_in(
+    testapp, fake_user, mock_BlogPost, mock_comments, mock_Like
+):
     response = views_base.logged_in_get_post_page(
         testapp,
         mock_BlogPost.key.id(),
@@ -67,7 +74,8 @@ def comments(soup):
 
 def test_post_view_show_comments(comments):
     assert len(comments) == 3
-    assert comments[0].find('p', class_='comment__comment').text.strip() == 'A comment'
+    paragraph = comments[0].find('p', class_='comment__comment')
+    assert paragraph.text.strip() == 'A comment'
 
 
 def test_comments_have_a_user_and_date(comments):
@@ -113,12 +121,16 @@ def logged_in_get_comment_page(testapp, post_id, user_id, comment_id=None):
     })
 
 
-def logged_in_post_comment(testapp, post_id, user_id, comment, comment_id=None):
+def logged_in_post_comment(
+    testapp, post_id, user_id, comment, comment_id=None
+):
     if comment_id:
         url = '/post/%i/comment/%i' % (post_id, comment_id)
     else:
         url = '/post/%i/comment' % post_id
-    return views_base.logged_in_post(testapp, url, user_id, {'comment': comment})
+    return views_base.logged_in_post(
+        testapp, url, user_id, {'comment': comment}
+    )
 
 
 def test_post_comment_calls_Comment(
@@ -165,7 +177,9 @@ def test_get_comment_while_logged_out_return_401(testapp, mock_BlogPost):
     assert '401' in str(excinfo.value)
 
 
-def test_get_comment_while_logged_in_returns_200(testapp, fake_user, mock_BlogPost):
+def test_get_comment_while_logged_in_returns_200(
+    testapp, fake_user, mock_BlogPost
+):
     user_id = fake_user.key.id()
     post_id = mock_BlogPost.key.id()
 
@@ -212,7 +226,7 @@ def test_get_comment_with_other_user_returns_403(
 
     mock_Comment(mocker, 'A comment', 123643)
     with pytest.raises(AppError) as excinfo:
-        response = logged_in_get_comment_page(testapp, user_id, blog_post_id, 1)
+        logged_in_get_comment_page(testapp, user_id, blog_post_id, 1)
     assert '403' in str(excinfo.value)
 
 
@@ -297,7 +311,12 @@ def test_post_to_delete_with_other_user_doesnt_call_delete(
     user_id = fake_user.key.id()
     post_id = mock_BlogPost.key.id()
     comment_id = 1234
-    mock_comment = mock_Comment(mocker, 'C comment', 1234, comment_id=comment_id)
+    mock_comment = mock_Comment(
+        mocker,
+        'C comment',
+        1234,
+        comment_id=comment_id
+    )
 
     with pytest.raises(AppError) as excinfo:
         response = logged_in_post_delete(testapp, post_id, comment_id, user_id)
@@ -310,7 +329,12 @@ def test_post_to_delete_with_same_user_call_delete(
     user_id = fake_user.key.id()
     post_id = mock_BlogPost.key.id()
     comment_id = 1234
-    mock_comment = mock_Comment(mocker, 'C comment', user_id, comment_id=comment_id)
+    mock_comment = mock_Comment(
+        mocker,
+        'C comment',
+        user_id,
+        comment_id=comment_id
+    )
 
     logged_in_post_delete(testapp, post_id, comment_id, user_id)
 
@@ -323,10 +347,14 @@ def test_post_to_delete_with_same_user_redirects_to_post(
     user_id = fake_user.key.id()
     post_id = mock_BlogPost.key.id()
     comment_id = 1234
-    mock_comment = mock_Comment(mocker, 'C comment', user_id, comment_id=comment_id)
+    mock_comment = mock_Comment(
+        mocker,
+        'C comment',
+        user_id,
+        comment_id=comment_id
+    )
 
     response = logged_in_post_delete(testapp, post_id, comment_id, user_id)
 
     assert response.status_int == 302
     assert response.location.split('/')[-2:] == ['post', str(post_id)]
-

@@ -36,7 +36,12 @@ class SignUpPage(BaseHandler):
             try:
                 user_id = auth.create_user(username, password, email)
             except:
-                self.render('signup.html', username=username, email=email, errors=['Username is already taken'])
+                self.render(
+                    'signup.html',
+                    username=username,
+                    email=email,
+                    errors=['Username is already taken']
+                )
             else:
                 self.log_user_in(user_id)
                 redirect_cookie = self.request.cookies.get('after_login')

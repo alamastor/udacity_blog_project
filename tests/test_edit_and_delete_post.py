@@ -68,7 +68,9 @@ def test_get_post_post_edit_page_return_200_if_logged_in_as_same_user(
     user_id = fake_user.key.id()
     post_id = mock_BlogPost(mocker, user_id).key.id()
 
-    response = views_base.logged_in_get(testapp, '/post/%i/edit' % post_id, user_id)
+    response = views_base.logged_in_get(
+        testapp, '/post/%i/edit' % post_id, user_id
+    )
     assert response.status_int == 200
 
 
@@ -77,7 +79,9 @@ def test_authorized_get_post_id_shows_edit_boxes_with_prefilled_vals(
 ):
     user_id = fake_user.key.id()
     post_id = mock_BlogPost(mocker, user_id).key.id()
-    response = views_base.logged_in_get(testapp, '/post/%i/edit' % post_id, user_id)
+    response = views_base.logged_in_get(
+        testapp, '/post/%i/edit' % post_id, user_id
+    )
 
     soup = response.html
 
@@ -116,6 +120,7 @@ def test_post_to_post_edit_page_return_403_if_logged_in_as_different_user(
         views_base.logged_in_post(testapp, '/post/%i' % post_id, user_id)
     assert '403' in str(excinfo.value)
 
+
 def test_post_to_post_edit_page_calls_put(testapp, fake_user, mocker):
     user_id = fake_user.key.id()
     mock_post = mock_BlogPost(mocker, user_id)
@@ -141,7 +146,9 @@ def test_post_with_invalid_title_redirects_to_edit(testapp, fake_user, mocker):
     assert response.location.split('/')[-1].split('?')[0] == 'edit'
 
 
-def test_post_with_invalid_content_redirects_to_error(testapp, fake_user, mocker):
+def test_post_with_invalid_content_redirects_to_error(
+    testapp, fake_user, mocker
+):
     user_id = fake_user.key.id()
     mock_post = mock_BlogPost(mocker, user_id)
     post_id = mock_post.key.id()
@@ -259,4 +266,5 @@ def test_redirect_from_create_set_correctly_sets_cookie(testapp):
         '/post/create'
     )
 
-    assert views_base.cookie_set(res, 'after_login', '"http://localhost/post/create"')
+    url = '"http://localhost/post/create"'
+    assert views_base.cookie_set(res, 'after_login', url)

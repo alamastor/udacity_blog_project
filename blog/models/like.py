@@ -21,4 +21,5 @@ class Like(ndb.Model):
         ''' Return the like associated with a blog post and user.
         '''
         blog_post = BlogPost.get_by_id(blog_post_id, parent=blog_key())
-        return cls.query(cls.user_id==user_id, ancestor=blog_post.key).fetch()[0]
+        query = cls.query(cls.user_id == user_id, ancestor=blog_post.key)
+        return query.fetch()[0]

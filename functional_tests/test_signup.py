@@ -27,7 +27,8 @@ def test_user_signup(run_app, browser):
     # User is redirected to welcome page
     welcome_page = WelcomePage(browser)
     assert welcome_page.is_open()
-    assert browser.find_element_by_class_name('welcome-header').text == 'Welcome person!'
+    welcome_header = browser.find_element_by_class_name('welcome-header').text
+    assert welcome_header == 'Welcome person!'
 
     # User clicks continue and sees username in nav.
     welcome_page.continue_link.click()

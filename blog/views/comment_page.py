@@ -81,7 +81,9 @@ class CommentPage(BaseHandler):
         ''' Return blog post model this comment relates to.
         '''
         if not self._blog_post:
-            self._blog_post = BlogPost.get_by_id(self.post_id, parent=blog_key())
+            self._blog_post = BlogPost.get_by_id(
+                self.post_id, parent=blog_key()
+            )
         return self._blog_post
 
     @property
