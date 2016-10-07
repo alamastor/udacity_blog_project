@@ -56,6 +56,9 @@ class BaseHandler(webapp2.RequestHandler):
             if auth.check_secure_val(val, digest):
                 return val
 
+    def delete_cookie(self, name):
+        self.response.delete_cookie(name)
+
     def log_user_in(self, user_id):
         ''' Log a user in by setting session cookie.
         '''
