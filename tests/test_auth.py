@@ -1,6 +1,17 @@
 import pytest
 
 from blog.utils import auth
+from blog.models.user import User
+
+
+@pytest.fixture
+def testdb():
+    from google.appengine.ext import testbed
+    testbed = testbed.Testbed()
+    testbed.activate()
+    testbed.init_app_identity_stub()
+    testbed.init_datastore_v3_stub()
+    testbed.init_memcache_stub()
 
 
 def test_make_pw_hash_returns_256_bit_str():
@@ -29,6 +40,7 @@ def test_check_secure_val_returns_false_for_invalid_input():
 def mock_User(mocker):
     mock_User = mocker.patch('blog.utils.auth.User', autospec=True)
     mock_User.return_value.key.id = mocker.Mock(return_value=100)
+    mock_User.get_by_username.return_value = []
 
     return mock_User
 
@@ -73,6 +85,7 @@ def test_create_user_calls_make_pw_hash_with_correct_args(mocker, mock_User):
 
 def test_create_user_calls_User_with_email_if_arg(mocker, mock):
     mock_User = mocker.patch('blog.utils.auth.User')
+    mock_User.get_by_username.return_value = []
 
     auth.create_user('user', 'pass', 'a@b.com')
 
@@ -83,3 +96,9 @@ def test_create_user_calls_User_with_email_if_arg(mocker, mock):
 
 def test_create_user_return_user_id(mocker, mock_User):
     assert auth.create_user('user', 'pass') == mock_User().key.id()
+
+
+def test_duplicate_user_raises(testdb):
+    User(username='asdf', pw_hash='asdf', salt='asdf').put()
+    with pytest.raises(auth.UserAlreadyExists):
+        auth.create_user('asdf', 'qwerqwer')

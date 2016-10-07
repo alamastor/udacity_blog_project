@@ -11,7 +11,8 @@ class User(ndb.Model):
 
     @classmethod
     def get_by_username(cls, username):
-        ''' Return one user object with given username.'''
+        ''' Return one user object with given username.
+        '''
         users = cls.query(cls.username==username).fetch()
         if users:
             if len(users) != 1:

@@ -28,23 +28,6 @@ def test_BlogPost_date_str(testdb):
     assert post.date_str == '3-May-2016'
 
 
-def test_formatted_content_adds_br_to_BlogPost_content(testdb):
-    content = (
-        'asdf asdfa. sdf\n'
-        'asdfasdf asdf asdf\n'
-        'asdfasdf sdf'
-    )
-    post = BlogPost(
-        title='asd',
-        content=content,
-        datetime=datetime(2015, 12, 12),
-        user_id=1
-    )
-    assert post.formatted_content == (
-        'asdf asdfa. sdf<br>asdfasdf asdf asdf<br>asdfasdf sdf'
-    )
-
-
 def test_Post_username(testdb):
     user = User(username='kate', pw_hash='asdf', salt='asdf')
     user.put()
@@ -65,7 +48,7 @@ def test_User_query_by_username(testdb):
     user2 = User(username='qwer', pw_hash='qwer', salt='qwer')
     user2.put()
 
-    assert User.get_by_username(user1.username) == user1
+    assert User.get_by_username(user1.username).username == user1.username
 
 
 def test_Comment_get_by_blog_post_key(testdb):

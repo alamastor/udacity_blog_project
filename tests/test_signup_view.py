@@ -95,8 +95,9 @@ def valid_post(testapp):
 
 
 def test_valid_post_redirects_to_welcome(testapp):
-    assert valid_post(testapp).status_int == 302
-    assert valid_post(testapp).location.split('/')[-1] == 'welcome'
+    response = valid_post(testapp)
+    assert response.status_int == 302
+    assert response.location.split('/')[-1] == 'welcome'
 
 
 def test_valid_post_calls_create_user(testapp, mocker):
@@ -109,3 +110,13 @@ def test_valid_post_calls_login(testapp, mocker):
     mock_login = mocker.patch('views.signup_page.BaseHandler.log_user_in')
     valid_post(testapp)
     mock_login.assert_called_once()
+
+
+def test_post_with_existing_user_displays_error(testapp, mocker):
+    mocker.patch('utils.auth.User.get_by_username', return_value=[mocker.Mock()])
+    assert jinja2.escape('Username is already taken') in post_to_signup(
+        testapp,
+        username='sadfas',
+        password='axaxax',
+        verify='axaxax'
+    ).normal_body

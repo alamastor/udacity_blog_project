@@ -34,6 +34,10 @@ def create_user(username, password, email=None):
     ''' Add a new user to database, with a hashed password, and salt.
     '''
     salt = make_salt()
+
+    if User.get_by_username(username):
+        raise UserAlreadyExists("user '%s' already exists" % username)
+
     user = User(
         username=username,
         pw_hash=make_pw_hash(username, password, salt),
@@ -83,3 +87,7 @@ def constant_time_compare(a, b):
         # that all comparisons take the same amount of time.
         result &= (x == y)
     return result
+
+
+class UserAlreadyExists(Exception):
+    pass
