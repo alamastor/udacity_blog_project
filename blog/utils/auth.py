@@ -6,27 +6,33 @@ import binascii
 
 from models.user import User
 
+# Read key from auth.cfg for use with HMAC.
 config = SafeConfigParser()
 config.read(os.path.join(os.path.dirname(__file__), '..', 'auth.cfg'))
 HMAC_SESSION_KEY = config.get('Keys', 'session')
 
 
 def make_pw_hash(username, password, salt):
+    ''' Generate password hash from usename, password & salt.
+    '''
     return sha256(username + password + salt).hexdigest()
 
 
 def make_secure_val(val):
+    ''' Generate a hashed of string, using HMAC.
+    '''
     return hmac.new(HMAC_SESSION_KEY, str(val), sha256).hexdigest()
 
 
 def check_secure_val(val, hexdigest):
-    return constant_time_compare(
-        make_secure_val(val),
-        str(hexdigest)
-    )
+    ''' Verify a value matches a hash.
+    '''
+    return constant_time_compare(make_secure_val(val),str(hexdigest))
 
 
 def create_user(username, password, email=None):
+    ''' Add a new user to database, with a hashed password, and salt.
+    '''
     salt = make_salt()
     user = User(
         username=username,
@@ -39,6 +45,8 @@ def create_user(username, password, email=None):
 
 
 def make_salt():
+    ''' Generate a salt string, for use in generating password hash.
+    '''
     return binascii.hexlify(os.urandom(4))
 
 
@@ -58,6 +66,7 @@ def constant_time_compare(a, b):
     the Python version on Google App Engine 2.7.5.
     """
     if isinstance(a, str):
+        # Convert str to uncode if required.
         a = unicode(a)
     if isinstance(b, str):
         b = unicode(b)
