@@ -4,14 +4,25 @@ from utils import auth
 
 
 class LoginPage(BaseHandler):
+    ''' Handler responsible for rendering login page and loging a
+    user in.
+    '''
 
     def get(self):
+        ''' Return respose with login page.
+        '''
+        # Redirect cookie provides an address to return the user back
+        # to after logint.
         redirect_cookie = self.request.cookies.get('after_login')
         if not redirect_cookie and self.request.referer:
+            # If redirect cookie was not set set it now to page referer.
             self.set_cookie('after_login', self.request.referer)
         self.render('login.html')
 
     def post(self):
+        ''' Validate user login input and login if ok, otherwise
+        display errors.
+        '''
         username = self.request.get('username')
         password = self.request.get('password')
 
