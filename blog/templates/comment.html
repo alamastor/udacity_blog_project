@@ -7,7 +7,10 @@
   {% endif %}
     <p><label for="comment">Write a comment</label></p>
     <p><textarea class="comment-form__textarea" name="comment">{{ comment.comment }}</textarea></p>
-    <p><button class="comment-form__submit" type="submit">Submit</button></p>
+    <div class="form-buttons">
+      <button class="comment-form__submit" type="submit">Submit</button>
+      <a class="form-cancel" href='{{ referer }}'>Cancel</a>
+    </div>
   </form>
   <div class="error">{{ error }}</div>
 {% endblock %}

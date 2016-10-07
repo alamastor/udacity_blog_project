@@ -62,10 +62,10 @@ def mock_BlogPost(mocker, user_id=2):
     return mock_post
 
 
-def logged_in_get(testapp, url, user_id):
+def logged_in_get(testapp, url, user_id, extra_environ={}):
     cookie_str = '%s|%s' % (user_id, auth.make_secure_val(user_id))
     testapp.set_cookie('sess', cookie_str)
-    return testapp.get(url)
+    return testapp.get(url, extra_environ=extra_environ)
 
 
 def logged_in_get_post_page(testapp, post_id, user_id):

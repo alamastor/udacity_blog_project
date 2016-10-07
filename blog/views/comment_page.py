@@ -30,7 +30,8 @@ class CommentPage(BaseHandler):
             'comment.html',
             user=self.user,
             comment=self.comment,
-            post_id=self.post_id
+            post_id=self.post_id,
+            referer=self.request.referer or '/'
         )
 
     @BaseHandler.login_required(abort=401)

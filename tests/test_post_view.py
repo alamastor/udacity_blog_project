@@ -109,7 +109,9 @@ def test_post_comment_while_logged_out_returns_401(testapp, mock_BlogPost):
     assert '401' in str(excinfo.value)
 
 
-def logged_in_get_comment_page(testapp, post_id, user_id, comment_id=None):
+def logged_in_get_comment_page(
+        testapp, post_id, user_id, comment_id=None, extra_environ=[]
+    ):
     if comment_id:
         url = '/post/%i/comment/%i' % (post_id, comment_id)
     else:
@@ -118,7 +120,7 @@ def logged_in_get_comment_page(testapp, post_id, user_id, comment_id=None):
         'Cookie': 'sess=%s|%s; Path=/' % (
             user_id, auth.make_secure_val(user_id)
         )
-    })
+    }, extra_environ=extra_environ)
 
 
 def logged_in_post_comment(
@@ -358,3 +360,22 @@ def test_post_to_delete_with_same_user_redirects_to_post(
 
     assert response.status_int == 302
     assert response.location.split('/')[-2:] == ['post', str(post_id)]
+
+
+def test_comment_cancel_redirects_to_referer(
+    testapp, fake_user, mock_BlogPost, mocker
+):
+    user_id = fake_user.key.id()
+    post_id = mock_BlogPost.key.id()
+
+    comment = 'A comment'
+    mock_Comment(mocker, comment, user_id, 12345)
+
+    html = logged_in_get_comment_page(
+        testapp,
+        user_id,
+        post_id,
+        12345,
+        extra_environ={'HTTP_REFERER': '/asdf'}
+    ).html
+    assert html.find(class_='form-cancel')['href'] == '/asdf'

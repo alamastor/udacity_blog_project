@@ -268,3 +268,16 @@ def test_redirect_from_create_set_correctly_sets_cookie(testapp):
 
     url = '"http://localhost/post/create"'
     assert views_base.cookie_set(res, 'after_login', url)
+
+
+def test_cancel_links_to_referer(testapp, mocker, fake_user):
+    user_id = fake_user.key.id()
+    post_id = mock_BlogPost(mocker, user_id).key.id()
+
+    html = views_base.logged_in_get(
+        testapp,
+        '/post/%i/edit' % post_id,
+        user_id,
+        extra_environ={'HTTP_REFERER': '/asdf'}
+    ).html
+    assert html.find(class_='form-cancel')['href'] == '/asdf'

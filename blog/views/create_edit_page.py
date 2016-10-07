@@ -41,5 +41,6 @@ class CreateOrEditBlogPostPage(BaseHandler):
             title=title,
             content=content,
             user=self.user,
-            errors=errors
+            errors=errors,
+            referer=self.request.referer or '/'
         )
