@@ -33,3 +33,10 @@ def test_continue_links_to_home_if_cookie_not_set(testapp, fake_user):
     username = fake_user.username
     soup = views_base.logged_in_get(testapp, '/welcome', user_id).html
     assert soup.find(class_='continue-link')['href'] == '/'
+
+
+def test_continue_deletes_after_login_cookie(testapp, fake_user):
+    user_id = fake_user.key.id()
+    testapp.set_cookie('after_login', '/asdf')
+    res = views_base.logged_in_get(testapp, '/welcome', user_id)
+    assert res.headers['Set-Cookie'][:13] == 'after_login=;'
