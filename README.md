@@ -7,17 +7,20 @@ Deployed at <https://udacity-blog-project-144208.appspot.com>.
 cd /path/to/project/dir
 virtualenv venv
 source venv/bin/activate
+./generate_key.py
 pip install -r requirements.txt
 ```
-unit/integration/functional tests: ```./test_runner.py```
-selenium functional tests: ```./test_runner.py --functional```
+unit/integration/functional tests:
+```./test_runner.py```
+selenium functional tests:
+```./test_runner.py --functional```
 
 ## Deploying
 1. Install the Google Cloud SDK <https://cloud.google.com/sdk/docs/>.
 2. Deploy the app:
 ``` bash
 cd /path/to/project/dir
-python generate_key.py
+./generate_key.py
 cd blog
 gcloud app deploy
 ```
