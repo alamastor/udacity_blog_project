@@ -19,5 +19,5 @@ selenium functional tests: ```./test_runner.py --functional```
 cd /path/to/project/dir
 python generate_key.py
 cd blog
-gcloud deploy
+gcloud app deploy
 ```
