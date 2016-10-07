@@ -154,7 +154,6 @@ input[type="text"], input[type="password"], input[type="email"] {
   margin: 0.3em 0 1.5em 0;
 }
 
-.comment-box {
-  width: 80%;
-  max-width: 500px;
+.comment-form__textarea {
+  width: 100%;
 }
