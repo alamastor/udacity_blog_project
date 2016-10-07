@@ -7,7 +7,6 @@ Deployed at <https://udacity-blog-project-144208.appspot.com>.
 cd /path/to/project/dir
 virtualenv venv
 source venv/bin/activate
-```
 pip install -r requirements.txt
 unit/integration/functional tests: ```./test_runner.py```
 selenium functional tests: ```./test_runner.py --functional```
