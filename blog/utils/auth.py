@@ -8,12 +8,11 @@ from models.user import User
 
 # Read key from auth.cfg for use with HMAC.
 config = SafeConfigParser()
-if os.path.isfile(os.path.join(os.path.dirname(__file__), '..', 'auth.cfg')):
-    config.read(os.path.join(os.path.dirname(__file__), '..', 'auth.cfg'))
+if os.environ['SERVER_SOFTWARE'].startswith('Development'):
+    auth_conf = 'example_auth.cfg'
 else:
-    # Use example_auth.cfg instead of auth.cfg if auth.cfg not found.
-    # example_auth.cfg will not be deployed.
-    config.read(os.path.join(os.path.dirname(__file__), '..', 'example_auth.cfg'))
+    auth_conf = 'auth.cfg'
+config.read(os.path.join(os.path.dirname(__file__), '..', auth_conf))
 HMAC_SESSION_KEY = config.get('Keys', 'session')
 
 
